@@ -39,12 +39,3 @@ jobs:
         with:
           path: 'front/dist'
           destination: 'exam-serverless-storage'
-          
-      - name: Invalidate CDN cache
-        uses: 'google-github-actions/setup-gcloud@v1'
-        with:
-          project_id: master-coder-441716-a4
-      - run: |
-          gcloud compute url-maps invalidate-cdn-cache exam-serverless-storage \
-            --path "/*" \
-            --async
