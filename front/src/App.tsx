@@ -47,7 +47,7 @@ function HomePage() {
          to="/nca/quiz" 
          style={{...buttonStyle, backgroundColor: '#2196F3'}}
        >
-         NAVER Cloud Platform Certified Associate (117문제 중 20문제)
+         NAVER Cloud Platform Certified Associate<br></br> (117문제 중 20문제)
        </Link>
        
        <Link 
