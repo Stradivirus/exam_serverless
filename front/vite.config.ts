@@ -1,8 +1,11 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: './',
+  base: '/dist/',  // './' 대신 '/dist/'로 수정
+  build: {
+    assetsDir: 'assets',
+    outDir: 'dist'
+  }
 })
