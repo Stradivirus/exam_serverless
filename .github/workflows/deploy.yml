@@ -38,5 +38,5 @@ jobs:
         uses: 'google-github-actions/upload-cloud-storage@v1'
         with:
           path: 'front/dist'
-          destination: 'exam-serverless-storage/dist'
-          predefinedAcl: 'publicRead'
+          destination: 'exam-serverless-storage'
+          process_gcloudignore: false

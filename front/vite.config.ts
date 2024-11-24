@@ -3,13 +3,8 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  base: 'https://storage.googleapis.com/exam-serverless-storage/dist/',
+  base: 'https://storage.googleapis.com/exam-serverless-storage/',
   build: {
-    sourcemap: false,
-    rollupOptions: {
-      output: {
-        manualChunks: undefined
-      }
-    }
+    sourcemap: false
   }
 })
