@@ -3,9 +3,13 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  base: '/dist/',  // './' 대신 '/dist/'로 수정
+  base: 'https://storage.googleapis.com/exam-serverless-storage/dist/',
   build: {
-    assetsDir: 'assets',
-    outDir: 'dist'
+    sourcemap: false,
+    rollupOptions: {
+      output: {
+        manualChunks: undefined
+      }
+    }
   }
 })

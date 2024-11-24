@@ -38,4 +38,6 @@ jobs:
         uses: 'google-github-actions/upload-cloud-storage@v1'
         with:
           path: 'front/dist'
-          destination: 'exam-serverless-storage'
+          destination: 'exam-serverless-storage/dist'
+          headers: |
+            Cache-Control: no-cache, no-store, must-revalidate
