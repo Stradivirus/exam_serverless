@@ -5,7 +5,7 @@ on:
     branches:
       - master
     paths:
-      - 'front/src/**'
+      - 'front/**'
     
 jobs:
   deploy:
