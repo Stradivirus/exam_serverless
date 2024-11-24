@@ -54,7 +54,7 @@ function HomePage() {
          to="/aws/quiz" 
          style={{...buttonStyle, backgroundColor: '#F7931E'}}
        >
-         AWS Certified Cloud Practitioner (195문제 중 20문제)
+         AWS Certified Cloud Practitioner<br></br> (195문제 중 20문제)
        </Link>
      </div>
 
