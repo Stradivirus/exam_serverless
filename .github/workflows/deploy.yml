@@ -1,0 +1,50 @@
+name: Deploy to GCP Storage
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'front/src/**'
+    
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: "contains(github.event.head_commit.message, '[up]')"
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          
+      - name: Install dependencies
+        working-directory: ./front
+        run: npm install
+        
+      - name: Build
+        working-directory: ./front
+        run: npm run build
+        
+      - name: Auth GCP
+        uses: 'google-github-actions/auth@v1'
+        with:
+          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+          
+      - name: Upload to GCP Storage
+        uses: 'google-github-actions/upload-cloud-storage@v1'
+        with:
+          path: 'front/dist'
+          destination: 'exam-serverless-storage'
+          
+      - name: Invalidate CDN cache
+        uses: 'google-github-actions/setup-gcloud@v1'
+        with:
+          project_id: master-coder-441716-a4
+      - run: |
+          gcloud compute url-maps invalidate-cdn-cache exam-serverless-storage \
+            --path "/*" \
+            --async
