@@ -19,7 +19,7 @@ var examCollections = map[string]string{
 
 // MongoDB 연결 설정
 func connectToDatabase() (*mongo.Client, error) {
-    uri := "mongodb 주소 입력"
+    uri := "mongodb+srv://stradivirus:1q2w3e4r@cluster0.e7rvfpz.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
     client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(uri))
     if err != nil {
         return nil, err

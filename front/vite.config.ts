@@ -3,8 +3,9 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  base: 'https://storage.googleapis.com/exam-serverless-storage/',  // 버킷 루트 URL로 설정
+  base: '/',  // 루트 경로로 설정
   build: {
-    sourcemap: false
+    sourcemap: false,
+    outDir: 'dist'
   }
 })
