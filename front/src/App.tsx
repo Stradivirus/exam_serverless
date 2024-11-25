@@ -70,7 +70,7 @@ function HomePage() {
          fontWeight: 'bold',
          marginBottom: '30px'
        }}>
-         LINUX 1급 기출문제 (총 4회)
+         LINUX 1급 기출문제
        </h2>
        <div style={{
          display: 'flex',
