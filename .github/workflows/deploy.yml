@@ -1,12 +1,12 @@
-name: Deploy to GCP Storage
+name: Deploy to S3
 
 on:
   push:
     branches:
       - master
     paths:
-      - 'front/**'
-    
+      - 'front/**'  # front 폴더의 변경사항만 감지
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -14,12 +14,12 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '20'
           
       - name: Install dependencies
         working-directory: ./front
@@ -29,12 +29,12 @@ jobs:
         working-directory: ./front
         run: npm run build
         
-      - name: Auth GCP
-        uses: 'google-github-actions/auth@v1'
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
           
-      - name: Copy files to bucket root
-        run: |
-          cd front/dist
-          gsutil -m cp -r * gs://exam-serverless-storage/
+      - name: Deploy to S3
+        run: aws s3 sync front/dist/ s3://exam-serverless --delete
