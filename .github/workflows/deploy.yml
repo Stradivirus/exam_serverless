@@ -37,5 +37,5 @@ jobs:
       - name: Upload to GCP Storage
         uses: 'google-github-actions/upload-cloud-storage@v1'
         with:
-          path: 'front/dist'  # dist 폴더 내의 모든 파일
+          path: 'front/dist/*'  # dist 폴더 내의 모든 파일
           destination: 'exam-serverless-storage'  # 버킷 루트에 업로드
