@@ -17,7 +17,8 @@ function HomePage() {
    fontSize: '18px',
    fontWeight: '500' as const,
    textDecoration: 'none',
-   display: 'inline-block'
+   display: 'inline-block',
+   textAlign: 'center' as const
  };
 
  return (
