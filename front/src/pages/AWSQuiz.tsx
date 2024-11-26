@@ -152,7 +152,7 @@ function AWSQuiz() {
             fontSize: '1.5rem',
             fontWeight: 'bold',
           }}>
-            AWS Certified Cloud Practitioner 기출문제 (195문제 중 20문제)
+            AWS Solution Architect Associate 기출문제 (195문제 중 20문제)
           </h1>
           
           <div style={{
