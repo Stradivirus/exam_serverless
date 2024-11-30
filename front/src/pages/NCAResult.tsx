@@ -62,9 +62,9 @@ return (
       top: 0,
       left: 0,
       right: 0,
-      backgroundColor: 'white',
+      backgroundColor: '#E6F3FF',
       borderBottom: '1px solid #eee',
-      padding: '20px 0',
+      padding: '10px 0',
       zIndex: 1000
     }}>
       <div style={{

@@ -135,10 +135,10 @@ function AWSQuiz() {
         top: 0,
         left: 0,
         right: 0,
-        backgroundColor: 'white',
+        backgroundColor: '#E6F3FF',
         zIndex: 1000,
         borderBottom: '1px solid #eee',
-        padding: '20px 0'
+        padding: '10px 0',
       }}>
         <div style={{
           maxWidth: '1200px',

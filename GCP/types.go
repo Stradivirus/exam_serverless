@@ -5,8 +5,8 @@ import (
     "go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-// NCA 시험용 구조체
-type NCAQuestion struct {
+// BaseQuestion 공통 문제 구조체
+type BaseQuestion struct {
     ID            primitive.ObjectID `bson:"_id" json:"id"`
     Question      string            `bson:"question" json:"question"`
     ChoiceA       string            `bson:"choice_a" json:"choice_a"`
@@ -16,16 +16,10 @@ type NCAQuestion struct {
     CorrectAnswer string            `bson:"correct_answer" json:"-"`
 }
 
-// AWS 시험용 구조체
-type AWSQuestion struct {
-    ID            primitive.ObjectID `bson:"_id" json:"id"`
-    Question      string            `bson:"question" json:"question"`
-    ChoiceA       string            `bson:"choice_a" json:"choice_a"`
-    ChoiceB       string            `bson:"choice_b" json:"choice_b"`
-    ChoiceC       string            `bson:"choice_c" json:"choice_c"`
-    ChoiceD       string            `bson:"choice_d" json:"choice_d"`
-    CorrectAnswer string            `bson:"correct_answer" json:"-"`
-}
+// NCA와 AWS는 BaseQuestion을 사용하도록 type alias 설정
+type NCAQuestion = BaseQuestion
+type AWSQuestion = BaseQuestion
+type NCPQuestion = BaseQuestion
 
 // Linux 시험용 구조체
 type LinuxQuestion struct {
@@ -47,7 +41,7 @@ type QuizResult struct {
     QuestionNumber int              `json:"question_number,omitempty"`
     UserAnswer    string            `json:"user_answer"`
     CorrectAnswer string            `json:"correct_answer"`
-    IsCorrect     bool              `json:"is_correct"`
+    IsCorrect     bool             `json:"is_correct"`
 }
 
 // 퀴즈 응답 구조체

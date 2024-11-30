@@ -52,7 +52,7 @@ function AWSResult() {
    return <div style={{ fontSize: '1.3rem' }}>결과를 불러오는 중...</div>;
  }
 
- const passScore = Math.ceil(result.total * 0.6);
+ const passScore = Math.ceil(result.total * 0.65);
  const isPassed = result.score >= passScore;
 
  return (
@@ -63,9 +63,9 @@ function AWSResult() {
        top: 0,
        left: 0,
        right: 0,
-       backgroundColor: 'white',
+       backgroundColor: '#E6F3FF',
        borderBottom: '1px solid #eee',
-       padding: '20px 0',
+       padding: '10px 0',
        zIndex: 1000
      }}>
        <div style={{

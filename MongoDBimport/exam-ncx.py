@@ -1,5 +1,6 @@
 import json
 import re
+import os
 
 def parse_question_block(block):
     """
@@ -38,6 +39,10 @@ def txt_to_json_questions(input_file: str, output_file: str):
         output_file (str): Path to save the output .json file
     """
     try:
+        # 입력 파일에 .txt 확장자 추가 (없는 경우)
+        if not input_file.endswith('.txt'):
+            input_file += '.txt'
+            
         with open(input_file, 'r', encoding='utf-8') as file:
             content = file.read()
         
@@ -49,12 +54,19 @@ def txt_to_json_questions(input_file: str, output_file: str):
         with open(output_file, 'w', encoding='utf-8') as json_file:
             json.dump({"questions": questions}, json_file, ensure_ascii=False, indent=4)
 
-        print(f"JSON conversion successful. Output saved to '{output_file}'")
+        print(f"JSON 변환 성공. '{output_file}'에 저장되었습니다.")
     
     except FileNotFoundError:
-        print(f"Error: File '{input_file}' not found.")
+        print(f"에러: '{input_file}' 파일을 찾을 수 없습니다.")
     except Exception as e:
-        print(f"An error occurred: {e}")
+        print(f"오류 발생: {e}")
 
-# Example usage
-txt_to_json_questions("nca.txt", "nca.json")
+if __name__ == "__main__":
+    input_file = input("변환할 텍스트 파일 경로를 입력하세요: ").strip()
+    output_file = input("저장할 JSON 파일 이름을 입력하세요: ").strip()
+    
+    # .json 확장자가 없으면 추가
+    if not output_file.endswith('.json'):
+        output_file += '.json'
+        
+    txt_to_json_questions(input_file, output_file)

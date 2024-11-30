@@ -1,5 +1,8 @@
+# MongoDBImport.py
 from pymongo import MongoClient
 import json
+from dotenv import load_dotenv
+import os
 
 def import_questions(json_file_path, collection_name):
     """
@@ -10,8 +13,15 @@ def import_questions(json_file_path, collection_name):
     collection_name (str): 컬렉션 이름
     """
     try:
+        # .env 파일에서 환경 변수 로드
+        load_dotenv()
+        
+        # 환경 변수에서 MongoDB URI 가져오기
+        connection_string = os.getenv('MONGODB_URI')
+        if not connection_string:
+            raise ValueError("MongoDB URI가 환경 변수에 설정되지 않았습니다.")
+            
         # MongoDB Atlas 연결
-        connection_string = "mongodb+srv://stradivirus:1q2w3e4r@cluster0.e7rvfpz.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
         client = MongoClient(connection_string)
         
         # exam 데이터베이스 선택
