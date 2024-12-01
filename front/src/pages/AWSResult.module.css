@@ -1,0 +1,147 @@
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
+
+.container {
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+}
+
+.loadingMessage {
+  font-size: 1.3rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background-color: #E6F3FF;
+  border-bottom: 1px solid #eee;
+  padding: 10px 0;
+  z-index: 1000;
+}
+
+.headerContent {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+}
+
+.headerTitle {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.scoreText {
+  font-size: 1.3rem;
+}
+
+.scoreTextPassed {
+  composes: scoreText;
+  color: #28a745;
+}
+
+.scoreTextFailed {
+  composes: scoreText;
+  color: #dc3545;
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 15px;
+}
+
+.button {
+  padding: 12px 24px;
+  background-color: #F7931E;
+  color: white;
+  border-radius: 5px;
+  text-decoration: none;
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+.mainContent {
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+  margin-top: 120px;
+}
+
+.reviewTitle {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+}
+
+.questionCard {
+  margin-bottom: 20px;
+  padding: 20px;
+  border-radius: 10px;
+  border: 1px solid;
+}
+
+.questionCardCorrect {
+  composes: questionCard;
+  background-color: rgba(209, 231, 221, 0.5);
+  border-color: #c3e6cb;
+}
+
+.questionCardIncorrect {
+  composes: questionCard;
+  background-color: rgba(248, 215, 218, 0.3);
+  border-color: #f5c6cb;
+}
+
+.questionNumber {
+  font-size: 1.4rem;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+.questionText {
+  margin-bottom: 15px;
+  font-size: 1.3rem;
+  line-height: 1.6;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.choicesContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.choiceItem {
+  padding: 12px;
+  border-radius: 5px;
+  border: 1px solid rgba(0,0,0,0.1);
+  font-size: 1.3rem;
+  line-height: 1.4;
+  cursor: default;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  background-color: white;
+  color: black;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.choiceCorrect {
+  composes: choiceItem;
+  background-color: rgba(40, 167, 69, 0.9);
+  color: white;
+}
+
+.choiceIncorrect {
+  composes: choiceItem;
+  background-color: rgba(220, 53, 69, 0.4);
+  color: white;
+}

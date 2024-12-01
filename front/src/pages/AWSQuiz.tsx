@@ -1,6 +1,6 @@
-// src/pages/AWSQuiz.tsx
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import styles from './AWSQuiz.module.css';
 
 const API_URL = 'https://asia-northeast3-master-coder-441716-a4.cloudfunctions.net/examhandler';
 
@@ -11,6 +11,33 @@ interface Question {
   choice_b: string;
   choice_c: string;
   choice_d: string;
+  shuffledChoices?: Array<{ key: string; value: string }>;
+}
+
+// Fisher-Yates 셔플 알고리즘
+function shuffleArray<T>(array: T[]): T[] {
+  const newArray = [...array];
+  for (let i = newArray.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+  }
+  return newArray;
+}
+
+// 텍스트 줄바꿈 처리 함수
+function formatText(text: string) {
+  const sentences = text.split('.');
+  if (sentences.length <= 3) return text;
+
+  const firstLine = `${sentences[0]}.${sentences[1]}.`;
+  const remainingText = sentences.slice(2).join('.');
+  
+  return (
+    <>
+      <div>{firstLine}</div>
+      <div>{remainingText}</div>
+    </>
+  );
 }
 
 function AWSQuiz() {
@@ -19,6 +46,22 @@ function AWSQuiz() {
   const [answers, setAnswers] = useState<{[key: string]: string}>({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // 선택지를 섞는 함수
+  const shuffleChoices = (questions: Question[]): Question[] => {
+    return questions.map(question => {
+      const choicesArray = [
+        { key: 'A', value: question.choice_a },
+        { key: 'B', value: question.choice_b },
+        { key: 'C', value: question.choice_c },
+        { key: 'D', value: question.choice_d }
+      ];
+      return {
+        ...question,
+        shuffledChoices: shuffleArray(choicesArray)
+      };
+    });
+  };
 
   useEffect(() => {
     fetch(`${API_URL}/aws/questions`)
@@ -39,7 +82,9 @@ function AWSQuiz() {
           throw new Error('No questions found in data');
         }
 
-        setQuestions(questionsData);
+        // 문제를 받아온 후 선택지를 섞어서 저장
+        const shuffledQuestions = shuffleChoices(questionsData);
+        setQuestions(shuffledQuestions);
         setIsLoading(false);
         setError(null);
       })
@@ -54,12 +99,26 @@ function AWSQuiz() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      // answers 객체의 각 답안을 원래의 선택지 키(A,B,C,D)로 변환
+      const originalAnswers = Object.fromEntries(
+        Object.entries(answers).map(([questionId, selectedValue]) => {
+          const question = questions.find(q => q.id === questionId);
+          if (!question?.shuffledChoices) return [questionId, selectedValue];
+          
+          // 선택된 값에 해당하는 원래 선택지 키 찾기
+          const originalChoice = question.shuffledChoices.find(
+            choice => choice.value === selectedValue
+          );
+          return [questionId, originalChoice?.key || selectedValue];
+        })
+      );
+
       const response = await fetch(`${API_URL}/aws/check`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(answers)
+        body: JSON.stringify(originalAnswers)
       });
 
       if (!response.ok) {
@@ -77,222 +136,83 @@ function AWSQuiz() {
   const isSubmittable = questions.length > 0 && Object.keys(answers).length === questions.length;
 
   if (isLoading) {
-    return (
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh',
-        fontSize: '1.3rem'
-      }}>
-        문제를 불러오는 중...
-      </div>
-    );
+    return <div className={styles.loadingContainer}>문제를 불러오는 중...</div>;
   }
 
   if (error || questions.length === 0) {
     return (
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh',
-        flexDirection: 'column',
-        gap: '20px',
-        fontSize: '1.3rem'
-      }}>
+      <div className={styles.errorContainer}>
         <div>문제를 불러오는데 실패했습니다.</div>
-        <div style={{ fontSize: '1rem', color: '#666' }}>
+        <div className={styles.errorMessage}>
           {error || '문제 데이터를 받아오지 못했습니다.'}
         </div>
-        <Link 
-          to="/"
-          style={{
-            padding: '12px 24px',
-            backgroundColor: '#F7931E',
-            color: 'white',
-            borderRadius: '5px',
-            textDecoration: 'none',
-            fontSize: '1.2rem'
-          }}
-        >
-          홈으로 돌아가기
-        </Link>
+        <Link to="/" className={styles.button}>홈으로 돌아가기</Link>
       </div>
     );
   }
 
   return (
-    <div style={{
-      maxWidth: '1500px',
-      margin: '0 auto',
-      padding: '20px',
-      paddingTop: '100px',
-    }}>
-      {/* 고정 헤더 */}
-      <div style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        backgroundColor: '#E6F3FF',
-        zIndex: 1000,
-        borderBottom: '1px solid #eee',
-        padding: '10px 0',
-      }}>
-        <div style={{
-          maxWidth: '1200px',
-          margin: '0 auto',
-          padding: '0 20px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center'
-        }}>
-          <h1 style={{ 
-            fontSize: '1.5rem',
-            fontWeight: 'bold',
-          }}>
-            AWS Solution Architect Associate 기출문제 (195문제 중 20문제)
+    <div className={styles.container}>
+      <div className={styles.header}>
+        <div className={styles.headerContent}>
+          <h1 className={styles.headerTitle}>
+            AWS Solution Architect Associate 기출문제
           </h1>
           
-          <div style={{
-            display: 'flex',
-            gap: '15px',
-          }}>
+          <div className={styles.buttonGroup}>
             <button
               type="submit"
               form="quiz-form"
               disabled={!isSubmittable}
-              style={{
-                padding: '12px 24px',
-                backgroundColor: isSubmittable ? '#F7931E' : '#cccccc',
-                color: 'white',
-                border: 'none',
-                borderRadius: '5px',
-                cursor: isSubmittable ? 'pointer' : 'not-allowed',
-                fontSize: '1.2rem',
-                fontWeight: '500',
-                textDecoration: 'none',
-                transition: 'background-color 0.2s'
-              }}
+              className={styles.submitButton}
             >
               답안 제출
             </button>
             
-            <Link 
-              to="/"
-              style={{
-                padding: '12px 24px',
-                backgroundColor: '#F7931E',
-                color: 'white',
-                borderRadius: '5px',
-                textDecoration: 'none',
-                fontSize: '1.2rem',
-                fontWeight: '500'
-              }}
-            >
-              홈으로
-            </Link>
+            <Link to="/" className={styles.button}>홈으로</Link>
           </div>
         </div>
       </div>
 
-      {/* 메인 콘텐츠 */}
       <form id="quiz-form" onSubmit={handleSubmit}>
         {questions.map((question, index) => (
-          <div 
-            key={question.id}
-            style={{
-              marginBottom: '30px',
-              padding: '20px',
-              backgroundColor: '#f8f9fa',
-              borderRadius: '8px',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
-            }}
-          >
-            <h3 style={{
-  fontSize: '1.3rem',
-  fontWeight: 'bold',
-  marginBottom: '20px',
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '10px'
-}}>
-  {/* 문자열을 . 기준으로 나누기 */}
-  {(() => {
-    const sentences = question.question.split('.');
-    
-    // 첫 두 문장을 합쳐서 첫 줄로 (문제 번호와 첫 문장)
-    const firstLine = `${index + 1}. ${sentences[0]}.${sentences[1]}.`;
-    
-    // 중간 문장들 (마지막 문장 제외)
-    const middleText = sentences.slice(2, -1).join('.') + '.';
-    
-    // 마지막 문장 (질문)
-    const lastLine = sentences[sentences.length - 1];
+          <div key={question.id} className={styles.questionCard}>
+            <h3 className={styles.questionTitle}>
+              {(() => {
+                const sentences = question.question.split('.');
+                const firstLine = `${index + 1}. ${sentences[0]}.${sentences[1]}.`;
+                const middleText = sentences.slice(2, -1).join('.') + '.';
+                const lastLine = sentences[sentences.length - 1];
 
-    return (
-      <>
-        <div>{firstLine}</div>
-        {middleText && <div>{middleText}</div>}
-        <div>{lastLine}</div>
-      </>
-    );
-  })()}
-  
-  {!answers[question.id] && (
-    <span style={{
-      fontSize: '1rem',
-      color: '#dc3545',
-      backgroundColor: 'rgba(220, 53, 69, 0.1)',
-      padding: '4px 8px',
-      borderRadius: '4px',
-      alignSelf: 'flex-start'
-    }}>
-      미선택
-    </span>
-  )}
-</h3>
+                return (
+                  <>
+                    <div>{firstLine}</div>
+                    {middleText && <div>{middleText}</div>}
+                    <div>{lastLine}</div>
+                  </>
+                );
+              })()}
+              
+              {!answers[question.id] && (
+                <span className={styles.unansweredTag}>미선택</span>
+              )}
+            </h3>
 
-            <div style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '12px'
-            }}>
-              {[
-                { key: 'A', value: question.choice_a },
-                { key: 'B', value: question.choice_b },
-                { key: 'C', value: question.choice_c },
-                { key: 'D', value: question.choice_d }
-              ].map(choice => (
-                <label
-                  key={choice.key}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    padding: '15px',
-                    backgroundColor: 'white',
-                    borderRadius: '5px',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s'
-                  }}
-                >
+            <div className={styles.choicesContainer}>
+              {question.shuffledChoices?.map(choice => (
+                <label key={choice.key} className={styles.choiceLabel}>
                   <input
                     type="radio"
                     name={`question_${question.id}`}
-                    value={choice.key}
+                    value={choice.value}
                     onChange={(e) => setAnswers({
                       ...answers,
                       [question.id]: e.target.value
                     })}
-                    style={{ 
-                      marginRight: '15px',
-                      width: '20px',
-                      height: '20px'
-                    }}
+                    className={styles.choiceInput}
                   />
-                  <span style={{ fontSize: '1.2rem' }}>
-                    {choice.key}. {choice.value}
+                  <span className={styles.choiceText}>
+                    {formatText(choice.value)}
                   </span>
                 </label>
               ))}

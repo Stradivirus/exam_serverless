@@ -55,7 +55,7 @@ function HomePage() {
          to="/aws/quiz" 
          style={{...buttonStyle, backgroundColor: '#F7931E'}}
        >
-         AWS Solution Architect Associate<br></br> (195문제 중 20문제)
+         AWS Solution Architect Associate<br></br> (263문제 중 20문제)
        </Link>
      </div>
 
