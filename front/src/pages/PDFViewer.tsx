@@ -136,7 +136,7 @@ function PDFViewer() {
               key={q}
               onClick={() => scrollToQuestion(q)}
               style={{ 
-                width: '100px',
+                width: '90px',
                 padding: '8px 0',
                 background: '#1976D2', 
                 color: 'white', 
