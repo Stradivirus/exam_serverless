@@ -42,17 +42,23 @@ function PDFViewer() {
       return;
     }
 
-    const pdfNumber = filename?.replace('.pdf', '').slice(-1);
     const examType = isNetworkExam ? 'network' : 'linux';
+    const pdfNumber = filename?.replace('.pdf', '').slice(-1);
+    const checkPath = isNetworkExam 
+      ? filename?.match(/\d{8}/)?.[0]  // 네트워크는 날짜 추출 (20240825)
+      : `pdf${pdfNumber}`;             // 리눅스는 기존 방식 유지
     
     try {
-      const response = await fetch(`https://asia-northeast3-master-coder-441716-a4.cloudfunctions.net/examhandler/${examType}/check/pdf${pdfNumber}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(answers),
-      });
+      const response = await fetch(
+        `https://asia-northeast3-master-coder-441716-a4.cloudfunctions.net/examhandler/${examType}/check/${checkPath}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(answers),
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.text();
