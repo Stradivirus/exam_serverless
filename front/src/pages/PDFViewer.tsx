@@ -5,10 +5,15 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 function PDFViewer() {
   const { filename } = useParams();
   const navigate = useNavigate();
+
+  const isNetworkExam = filename?.includes('네트워크관리사');
+  const questionCount = isNetworkExam ? 50 : 100;
+  const examTime = isNetworkExam ? 3600 : 6000;
+
   const [answers, setAnswers] = useState<{ [key: string]: string }>({});
-  const [timer, setTimer] = useState<number>(6000); // 100분 = 6000초
+  const [timer, setTimer] = useState<number>(examTime);
   const [unansweredQuestions, setUnansweredQuestions] = useState<number[]>(
-    Array.from({length: 100}, (_, i) => i + 1)
+    Array.from({length: questionCount}, (_, i) => i + 1)
   );
 
   useEffect(() => {
@@ -38,9 +43,10 @@ function PDFViewer() {
     }
 
     const pdfNumber = filename?.replace('.pdf', '').slice(-1);
+    const examType = isNetworkExam ? 'network' : 'linux';
     
     try {
-      const response = await fetch(`https://asia-northeast3-master-coder-441716-a4.cloudfunctions.net/examhandler/linux/check/pdf${pdfNumber}`, {
+      const response = await fetch(`https://asia-northeast3-master-coder-441716-a4.cloudfunctions.net/examhandler/${examType}/check/pdf${pdfNumber}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -55,7 +61,7 @@ function PDFViewer() {
 
       const results = await response.json();
       sessionStorage.setItem('quizResults', JSON.stringify(results));
-      navigate(`/linux/result/${filename}`);
+      navigate(`/${examType}/result/${filename}`);
     } catch (error) {
       console.error('Error:', error);
       alert('답안 제출 중 오류가 발생했습니다. ' + error);
@@ -79,20 +85,20 @@ function PDFViewer() {
         height: '100%',
         position: 'relative',
         overflow: 'auto',
-        display: 'flex',  // 추가
-        justifyContent: 'center'  // 추가
+        display: 'flex',
+        justifyContent: 'center'
       }}>
-      <iframe
-        src={`/pdf/${filename}`}
+        <iframe
+          src={`/pdf/${filename}`}
           style={{ 
-          width: '130%',
-          height: '100%',
-          border: 'none',
-          margin: 'auto'  // 추가
-      }}
-      title="PDF Viewer"
-    />
-    </div>
+            width: '130%',
+            height: '100%',
+            border: 'none',
+            margin: 'auto'
+          }}
+          title="PDF Viewer"
+        />
+      </div>
 
       {/* 중앙 패널 - 미답변 문제 */}
       <div style={{ 
@@ -214,7 +220,7 @@ function PDFViewer() {
           overflowY: 'auto',
           flex: 1
         }}>
-          {Array.from({length: 100}, (_, i) => i + 1).map(questionNumber => (
+          {Array.from({length: questionCount}, (_, i) => i + 1).map(questionNumber => (
             <div 
               key={questionNumber} 
               id={`question-${questionNumber}`}
