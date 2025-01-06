@@ -7,6 +7,7 @@ import AWSResult from "./pages/AWSResult";
 import PDFViewer from "./pages/PDFViewer";    
 import LinuxResult from "./pages/LinuxResult"; 
 import NetworkResult from "./pages/NetworkResult";
+import { ReactNode } from 'react'; // children 타입을 위해 추가
 import './App.css';
 
 function HomePage() {
@@ -20,7 +21,7 @@ function HomePage() {
     fontWeight: '500',
     textDecoration: 'none',
     display: 'inline-block',
-    textAlign: 'center'
+    textAlign: 'center' as const // 타입 명시
   };
 
   return (
@@ -95,7 +96,12 @@ function HomePage() {
   );
 }
 
-function Layout({ children }) {
+// Layout 컴포넌트의 props 타입 정의
+interface LayoutProps {
+  children: ReactNode;
+}
+
+function Layout({ children }: LayoutProps) {
   return (
     <div className="layout">
       <div className="layout-side"></div>
