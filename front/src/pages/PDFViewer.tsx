@@ -6,7 +6,7 @@ function PDFViewer() {
   const { filename } = useParams();
   const navigate = useNavigate();
   const answerListRef = useRef<HTMLDivElement>(null);
-  const timerRef = useRef<NodeJS.Timeout>();
+  const timerRef = useRef<ReturnType<typeof setTimeout>>();
 
   const isNetworkExam = filename?.includes('네트워크관리사');
   const questionCount = isNetworkExam ? 50 : 100;
