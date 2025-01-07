@@ -1,0 +1,180 @@
+/* PDFViewer.module.css */
+.container {
+    display: flex;
+    height: 100vh;
+  }
+  
+  .pdfPanel {
+    flex: 3;
+    height: 100%;
+    position: relative;
+    overflow: auto;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .pdfFrame {
+    width: 130%;
+    height: 100%;
+    border: none;
+    margin: auto;
+  }
+  
+  .sidePanel {
+    flex: 0.2;
+    border-left: 1px solid #eee;
+    border-right: 1px solid #eee;
+    padding: 10px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .sidePanelTitle {
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-align: center;
+  }
+  
+  .unansweredList {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+    overflow-y: auto;
+  }
+  
+  .unansweredButton {
+    width: 90px;
+    padding: 8px 0;
+    background: #1976D2;
+    color: white;
+    border-radius: 5px;
+    font-size: 1rem;
+    border: none;
+    cursor: pointer;
+    text-align: center;
+  }
+  
+  .answerPanel {
+    flex: 0.8;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .controlsHeader {
+    position: sticky;
+    top: 0;
+    background: white;
+    border-bottom: 1px solid #eee;
+    padding: 20px;
+    z-index: 10;
+  }
+  
+  .controlsContainer {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+  
+  .timer {
+    font-size: 2rem;
+    font-weight: bold;
+  }
+  
+  .buttonsContainer {
+    display: flex;
+    gap: 10px;
+    flex: 1;
+  }
+  
+  .submitButton {
+    padding: 12px 24px;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    flex: 1;
+  }
+  
+  .submitButton:enabled {
+    background: #4CAF50;
+    cursor: pointer;
+    opacity: 1;
+  }
+  
+  .submitButton:disabled {
+    background: #cccccc;
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+  
+  .homeButton {
+    padding: 12px 24px;
+    background: #2196F3;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    font-weight: bold;
+    text-decoration: none;
+    text-align: center;
+    flex: 1;
+  }
+  
+  .answerList {
+    padding: 20px;
+    overflow-y: auto;
+    flex: 1;
+  }
+  
+  .questionContainer {
+    margin-bottom: 20px;
+    scroll-margin-top: 100px;
+    padding: 10px;
+    border-radius: 8px;
+  }
+  
+  .questionContainer.current {
+    border: 2px solid #2196F3;
+  }
+  
+  .questionHeader {
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .keyboardHint {
+    color: #2196F3;
+    font-size: 0.9rem;
+  }
+  
+  .choiceGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+  
+  .choiceButton {
+    width: 100%;
+    padding: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .choiceButton.selected {
+    border: 2px solid #4CAF50;
+    background: #e8f5e9;
+  }
+  
+  .choiceButton:not(.selected) {
+    border: 1px solid #ddd;
+    background: white;
+  }

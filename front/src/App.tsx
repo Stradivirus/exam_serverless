@@ -11,21 +11,11 @@ import { ReactNode } from 'react';
 import './App.css';
 
 function HomePage() {
-  const buttonStyle = {
-    padding: '15px 30px',
-    border: 'none',
-    borderRadius: '5px',
-    color: 'white',
-    cursor: 'pointer',
-    fontSize: '18px',
-    fontWeight: '500',
-    textDecoration: 'none',
-    display: 'inline-block',
-    textAlign: 'center' as const
-  };
-
   return (
     <div className="home-container">
+      <p className="browser-notice">
+        * 키보드로 답안 선택하기(1~4)는 Microsoft Edge 브라우저에서만 지원됩니다.
+      </p>
       <h1 className="main-title">
         NCA, AWS 기출문제
       </h1>
@@ -33,14 +23,14 @@ function HomePage() {
       <div className="button-container">
         <Link 
           to="/nca/quiz" 
-          style={{...buttonStyle, backgroundColor: '#2196F3'}}
+          className="main-button nca-button"
         >
           NAVER Cloud Platform Certified Associate<br></br> (117문제 중 20문제)
         </Link>
         
         <Link 
           to="/aws/quiz" 
-          style={{...buttonStyle, backgroundColor: '#F7931E'}}
+          className="main-button aws-button"
         >
           AWS Solution Architect Associate<br></br> (331문제 중 20문제)
         </Link>
@@ -60,7 +50,7 @@ function HomePage() {
             <Link 
               key={item.text} 
               to={`/view_pdf/${item.pdf}`}
-              style={{...buttonStyle, backgroundColor: '#4CAF50'}}
+              className="main-button linux-button"
             >
               {item.text}
             </Link>
@@ -85,7 +75,7 @@ function HomePage() {
             <Link 
               key={item.text} 
               to={`/view_pdf/${item.pdf}`}
-              style={{...buttonStyle, backgroundColor: '#9C27B0'}}
+              className="main-button network-button"
             >
               {item.text}
             </Link>

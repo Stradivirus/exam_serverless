@@ -1,10 +1,12 @@
-// src/pages/PDFViewer.tsx
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import styles from './PDFViewer.module.css';
 
 function PDFViewer() {
   const { filename } = useParams();
   const navigate = useNavigate();
+  const answerListRef = useRef<HTMLDivElement>(null);
+  const timerRef = useRef<NodeJS.Timeout>();
 
   const isNetworkExam = filename?.includes('네트워크관리사');
   const questionCount = isNetworkExam ? 50 : 100;
@@ -12,15 +14,71 @@ function PDFViewer() {
 
   const [answers, setAnswers] = useState<{ [key: string]: string }>({});
   const [timer, setTimer] = useState<number>(examTime);
+  const [currentQuestion, setCurrentQuestion] = useState<number>(1);
   const [unansweredQuestions, setUnansweredQuestions] = useState<number[]>(
     Array.from({length: questionCount}, (_, i) => i + 1)
   );
 
+  // 다음 답안이 없는 문제 찾기 (메모이제이션)
+  const getNextUnansweredQuestion = useCallback((current: number, answers: Record<string, string>) => {
+    let next = current + 1;
+    while (next <= questionCount && answers[next]) {
+      next++;
+    }
+    return next <= questionCount ? next : current;
+  }, [questionCount]);
+
+  // 컴포넌트 마운트 시 답안 영역으로 포커스
   useEffect(() => {
-    const timerInterval = setInterval(() => {
-      setTimer((prev) => {
+    answerListRef.current?.focus();
+  }, []);
+
+  // 키보드 이벤트 핸들러 (메모이제이션)
+  const handleKeyPress = useCallback((event: KeyboardEvent) => {
+    if (
+      document.activeElement?.tagName === 'INPUT' ||
+      document.activeElement?.tagName === 'TEXTAREA' ||
+      (document.activeElement as HTMLElement)?.contentEditable === 'true'
+    ) {
+      return;
+    }
+
+    const isRegularNumber = event.code.startsWith('Digit') && ['1', '2', '3', '4'].includes(event.key);
+    const isNumpadNumber = event.code.startsWith('Numpad') && ['1', '2', '3', '4'].includes(event.key);
+    
+    if (isRegularNumber || isNumpadNumber) {
+      setAnswers(prev => {
+        const newAnswers = { ...prev, [currentQuestion]: event.key };
+        
+        if (currentQuestion < questionCount) {
+          const nextQuestion = getNextUnansweredQuestion(currentQuestion, newAnswers);
+          requestAnimationFrame(() => {
+            setCurrentQuestion(nextQuestion);
+            scrollToQuestion(nextQuestion);
+          });
+        }
+        
+        return newAnswers;
+      });
+      
+      setUnansweredQuestions(prev => prev.filter(q => q !== currentQuestion));
+    }
+  }, [currentQuestion, questionCount, getNextUnansweredQuestion]);
+
+  // 키보드 이벤트 리스너
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [handleKeyPress]);
+
+  // 타이머 설정 (최적화)
+  useEffect(() => {
+    timerRef.current = setInterval(() => {
+      setTimer(prev => {
         if (prev <= 0) {
-          clearInterval(timerInterval);
+          if (timerRef.current) {
+            clearInterval(timerRef.current);
+          }
           handleSubmit();
           return 0;
         }
@@ -28,14 +86,34 @@ function PDFViewer() {
       });
     }, 1000);
 
-    return () => clearInterval(timerInterval);
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
   }, []);
 
-  const handleAnswerSelect = (questionNumber: number, answer: string) => {
-    setAnswers(prev => ({...prev, [questionNumber]: answer}));
-    setUnansweredQuestions(prev => prev.filter(q => q !== questionNumber));
-  };
+  // 답안 선택 핸들러 (메모이제이션)
+  const handleAnswerSelect = useCallback((questionNumber: number, answer: string) => {
+    setAnswers(prev => {
+      const newAnswers = { ...prev, [questionNumber]: answer };
+      
+      if (questionNumber === currentQuestion && questionNumber < questionCount) {
+        const nextQuestion = getNextUnansweredQuestion(questionNumber, newAnswers);
+        requestAnimationFrame(() => {
+          setCurrentQuestion(nextQuestion);
+          scrollToQuestion(nextQuestion);
+        });
+      }
+      
+      return newAnswers;
+    });
 
+    setUnansweredQuestions(prev => prev.filter(q => q !== questionNumber));
+    answerListRef.current?.focus();
+  }, [currentQuestion, questionCount, getNextUnansweredQuestion]);
+
+  // 제출 핸들러
   const handleSubmit = async () => {
     if (Object.keys(answers).length === 0) {
       alert('최소 한 문제 이상 답안을 선택해주세요.');
@@ -45,8 +123,8 @@ function PDFViewer() {
     const examType = isNetworkExam ? 'network' : 'linux';
     const pdfNumber = filename?.replace('.pdf', '').slice(-1);
     const checkPath = isNetworkExam 
-      ? filename?.match(/\d{8}/)?.[0]  // 네트워크는 날짜 추출 (20240825)
-      : `pdf${pdfNumber}`;             // 리눅스는 기존 방식 유지
+      ? filename?.match(/\d{8}/)?.[0]
+      : `pdf${pdfNumber}`;
     
     try {
       const response = await fetch(
@@ -74,202 +152,115 @@ function PDFViewer() {
     }
   };
 
-  const scrollToQuestion = (questionNumber: number) => {
+  // 스크롤 핸들러 (메모이제이션)
+  const scrollToQuestion = useCallback((questionNumber: number) => {
     const element = document.getElementById(`question-${questionNumber}`);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
-  };
+  }, []);
 
   const hasAnswers = Object.keys(answers).length > 0;
 
+  // 미답변 문제 버튼 목록 (메모이제이션)
+  const unansweredButtons = useMemo(() => 
+    unansweredQuestions.map(q => (
+      <button
+        key={q}
+        onClick={() => {
+          scrollToQuestion(q);
+          answerListRef.current?.focus();
+        }}
+        className={styles.unansweredButton}
+      >
+        {q}
+      </button>
+    )), [unansweredQuestions, scrollToQuestion]);
+
+  // 답안 선택 영역 (메모이제이션)
+  const answerButtons = useMemo(() => 
+    Array.from({length: questionCount}, (_, i) => i + 1).map(questionNumber => (
+      <div 
+        key={questionNumber} 
+        id={`question-${questionNumber}`}
+        className={`${styles.questionContainer} ${currentQuestion === questionNumber ? styles.current : ''}`}
+      >
+        <div className={styles.questionHeader}>
+          <span>{questionNumber}번</span>
+          {currentQuestion === questionNumber && (
+            <span className={styles.keyboardHint}>
+              (1-4 키를 눌러 답안 선택)
+            </span>
+          )}
+        </div>
+        <div className={styles.choiceGrid}>
+          {[1, 2, 3, 4].map(choice => (
+            <button
+              key={choice}
+              onClick={() => {
+                handleAnswerSelect(questionNumber, choice.toString());
+                answerListRef.current?.focus();
+              }}
+              className={`${styles.choiceButton} ${
+                answers[questionNumber] === choice.toString() ? styles.selected : ''
+              }`}
+            >
+              {choice}
+            </button>
+          ))}
+        </div>
+      </div>
+    )), [questionCount, currentQuestion, answers, handleAnswerSelect]);
+
   return (
-    <div style={{ display: 'flex', height: '100vh' }}>
+    <div className={styles.container}>
       {/* PDF 뷰어 */}
-      <div style={{ 
-        flex: 3, 
-        height: '100%',
-        position: 'relative',
-        overflow: 'auto',
-        display: 'flex',
-        justifyContent: 'center'
-      }}>
+      <div className={styles.pdfPanel}>
         <iframe
-          src={`/pdf/${filename}`}
-          style={{ 
-            width: '130%',
-            height: '100%',
-            border: 'none',
-            margin: 'auto'
-          }}
+          src={`/pdf/${filename}#toolbar=0&search=0&find=0`}
+          className={styles.pdfFrame}
           title="PDF Viewer"
         />
       </div>
 
       {/* 중앙 패널 - 미답변 문제 */}
-      <div style={{ 
-        flex: 0.2, 
-        borderLeft: '1px solid #eee',
-        borderRight: '1px solid #eee',
-        padding: '10px',
-        overflowY: 'auto',
-        display: 'flex',
-        flexDirection: 'column'
-      }}>
-        <h3 style={{ 
-          marginBottom: '15px',
-          fontSize: '1.2rem',
-          fontWeight: 'bold',
-          textAlign: 'center'
-        }}>
+      <div className={styles.sidePanel}>
+        <h3 className={styles.sidePanelTitle}>
           미답변 문제
         </h3>
-        <div style={{ 
-          display: 'flex', 
-          flexDirection: 'column',
-          gap: '8px',
-          alignItems: 'center',
-          overflowY: 'auto'
-        }}>
-          {unansweredQuestions.map(q => (
-            <button
-              key={q}
-              onClick={() => scrollToQuestion(q)}
-              style={{ 
-                width: '90px',
-                padding: '8px 0',
-                background: '#1976D2', 
-                color: 'white', 
-                borderRadius: '5px',
-                fontSize: '1rem',
-                border: 'none',
-                cursor: 'pointer',
-                textAlign: 'center'
-              }}
-            >
-              {q}
-            </button>
-          ))}
+        <div className={styles.unansweredList}>
+          {unansweredButtons}
         </div>
       </div>
 
       {/* 답안 입력 패널 */}
-      <div style={{ flex: 0.8, display: 'flex', flexDirection: 'column' }}>
-        {/* 고정된 타이머와 버튼들 */}
-        <div style={{ 
-          position: 'sticky', 
-          top: 0,
-          background: 'white',
-          borderBottom: '1px solid #eee',
-          padding: '20px',
-          zIndex: 10
-        }}>
-          <div style={{ 
-            display: 'flex',
-            alignItems: 'center',
-            gap: '15px'
-          }}>
-            <div style={{ 
-              fontSize: '2rem', 
-              fontWeight: 'bold'
-            }}>
+      <div className={styles.answerPanel}>
+        <div className={styles.controlsHeader}>
+          <div className={styles.controlsContainer}>
+            <div className={styles.timer}>
               {Math.floor(timer / 60)}:{(timer % 60).toString().padStart(2, '0')}
             </div>
-            <div style={{
-              display: 'flex',
-              gap: '10px',
-              flex: 1
-            }}>
+            <div className={styles.buttonsContainer}>
               <button
                 onClick={handleSubmit}
                 disabled={!hasAnswers}
-                style={{
-                  padding: '12px 24px',
-                  background: hasAnswers ? '#4CAF50' : '#cccccc',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '5px',
-                  cursor: hasAnswers ? 'pointer' : 'not-allowed',
-                  fontSize: '1.1rem',
-                  fontWeight: 'bold',
-                  flex: 1,
-                  opacity: hasAnswers ? 1 : 0.7
-                }}
+                className={styles.submitButton}
               >
                 제출하기
               </button>
-              <Link 
-                to="/"
-                style={{
-                  padding: '12px 24px',
-                  background: '#2196F3',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '5px',
-                  cursor: 'pointer',
-                  fontSize: '1.1rem',
-                  fontWeight: 'bold',
-                  textDecoration: 'none',
-                  textAlign: 'center',
-                  flex: 1
-                }}
-              >
+              <Link to="/" className={styles.homeButton}>
                 홈으로
               </Link>
             </div>
           </div>
         </div>
 
-        {/* 답안 선택 영역 */}
-        <div style={{ 
-          padding: '20px',
-          overflowY: 'auto',
-          flex: 1
-        }}>
-          {Array.from({length: questionCount}, (_, i) => i + 1).map(questionNumber => (
-            <div 
-              key={questionNumber} 
-              id={`question-${questionNumber}`}
-              style={{ 
-                marginBottom: '20px',
-                scrollMarginTop: '100px'
-              }}
-            >
-              <div style={{ 
-                marginBottom: '10px', 
-                fontSize: '1.1rem',
-                fontWeight: 'bold'
-              }}>
-                {questionNumber}번
-              </div>
-              <div style={{ 
-                display: 'grid',
-                gridTemplateColumns: 'repeat(4, 1fr)',
-                gap: '10px'
-              }}>
-                {[1, 2, 3, 4].map(choice => (
-                  <button
-                    key={choice}
-                    onClick={() => handleAnswerSelect(questionNumber, choice.toString())}
-                    style={{
-                      width: '100%',
-                      padding: '10px',
-                      border: answers[questionNumber] === choice.toString() 
-                        ? '2px solid #4CAF50' 
-                        : '1px solid #ddd',
-                      borderRadius: '4px',
-                      background: answers[questionNumber] === choice.toString() 
-                        ? '#e8f5e9' 
-                        : 'white',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    {choice}
-                  </button>
-                ))}
-              </div>
-            </div>
-          ))}
+        <div 
+          ref={answerListRef}
+          className={styles.answerList}
+          tabIndex={-1}
+        >
+          {answerButtons}
         </div>
       </div>
     </div>
