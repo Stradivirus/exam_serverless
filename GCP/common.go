@@ -15,7 +15,7 @@ var examCollections = map[string]string{
     "nca": "NCA_100",
     "aws": "Aws_sa",
     "linux": "linux_1",
-    "ncp200": "NCP_200",  // 수정: ncp_200 -> ncp200
+    "network": "network_2",  // 추가
 }
 
 // MongoDB 연결 설정

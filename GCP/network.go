@@ -1,3 +1,4 @@
+// network.go
 package examhandler
 
 import (
@@ -17,7 +18,6 @@ func handleNetworkQuestions(w http.ResponseWriter, collection *mongo.Collection,
         return
     }
 
-    // 모든 문제 가져오기
     var questions []NetworkQuestion
     cursor, err := collection.Find(context.Background(), bson.M{})
     if err != nil {
@@ -107,59 +107,3 @@ func handleNetworkAnswers(userAnswers map[string]string, collection *mongo.Colle
 
     return results, score
 }
-
-// 4. handler.go의 ExamHandler 함수 내부 수정 부분
-switch action {
-case "questions":
-    if r.Method != http.MethodGet {
-        sendError(w, "Method not allowed", http.StatusMethodNotAllowed)
-        return
-    }
-    
-    switch examType {
-    case "nca":
-        handleNCAQuestions(w, collection)
-    case "aws":
-        handleAWSQuestions(w, collection)
-    case "linux":
-        handleLinuxQuestions(w, collection, pathParts)
-    case "ncp200":           
-        handleNCP200Questions(w, collection)
-    case "network":          // 추가
-        handleNetworkQuestions(w, collection, pathParts)
-    default:
-        sendError(w, "Invalid exam type", http.StatusBadRequest)
-    }
-
-case "check":
-    if r.Method != http.MethodPost {
-        sendError(w, "Method not allowed", http.StatusMethodNotAllowed)
-        return
-    }
-
-    var userAnswers map[string]string
-    if err := json.NewDecoder(r.Body).Decode(&userAnswers); err != nil {
-        sendError(w, "Error parsing answers", http.StatusBadRequest)
-        return
-    }
-
-    var results []QuizResult
-    var score int
-
-    switch examType {
-    case "nca":
-        results, score = handleNCAAnswers(userAnswers, collection)
-    case "aws":
-        results, score = handleAWSAnswers(userAnswers, collection)
-    case "linux":
-        pdfNumber := pathParts[2] 
-        results, score = handleLinuxAnswers(userAnswers, collection, pdfNumber)
-    case "ncp200":          
-        results, score = handleNCP200Answers(userAnswers, collection)
-    case "network":         // 추가
-        examDate := pathParts[2]
-        results, score = handleNetworkAnswers(userAnswers, collection, examDate)
-    default:
-        sendError(w, "Invalid exam type", http.StatusBadRequest)
-        return
-    }

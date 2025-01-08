@@ -53,8 +53,8 @@ func ExamHandler(w http.ResponseWriter, r *http.Request) {
             handleAWSQuestions(w, collection)
         case "linux":
             handleLinuxQuestions(w, collection, pathParts)
-        case "ncp200":           
-            handleNCP200Questions(w, collection)
+        case "network":          
+            handleNetworkQuestions(w, collection, pathParts)
         default:
             sendError(w, "Invalid exam type", http.StatusBadRequest)
         }
@@ -82,8 +82,9 @@ func ExamHandler(w http.ResponseWriter, r *http.Request) {
         case "linux":
             pdfNumber := pathParts[2] 
             results, score = handleLinuxAnswers(userAnswers, collection, pdfNumber)
-        case "ncp200":          
-            results, score = handleNCP200Answers(userAnswers, collection)
+        case "network":         
+            examDate := pathParts[2]
+            results, score = handleNetworkAnswers(userAnswers, collection, examDate)
         default:
             sendError(w, "Invalid exam type", http.StatusBadRequest)
             return

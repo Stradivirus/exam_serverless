@@ -33,6 +33,21 @@ type LinuxQuestion struct {
     }               `bson:"answers" json:"-"`
 }
 
+// Network 시험용 구조체 추가
+type NetworkQuestion struct {
+    ID             primitive.ObjectID `bson:"_id" json:"id"`
+    QuestionNumber int               `bson:"question_number" json:"question_number"`
+    Answers        struct {
+        Answer20240825 int `bson:"20240825" json:"-"` // 4회
+        Answer20240519 int `bson:"20240519" json:"-"` // 3.3회
+        Answer20240225 int `bson:"20240225" json:"-"` // 3.2회
+        Answer20231105 int `bson:"20231105" json:"-"` // 3.1회
+        Answer20230820 int `bson:"20230820" json:"-"` // 3회
+        Answer20230521 int `bson:"20230521" json:"-"` // 2회
+        Answer20230226 int `bson:"20230226" json:"-"` // 1회
+    } `bson:"answers" json:"-"`
+}
+
 // 퀴즈 결과 구조체
 type QuizResult struct {
     QuestionID    string            `json:"question_id"`
