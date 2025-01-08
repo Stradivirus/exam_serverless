@@ -4,7 +4,7 @@ import NCAQuiz from "./pages/NCAQuiz";
 import NCAResult from "./pages/NCAResult";
 import AWSQuiz from "./pages/AWSQuiz";
 import AWSResult from "./pages/AWSResult";
-import PDFViewer from "./pages/PDFViewer";    
+import PDFViewer from "./components/PDFViewer";    
 import LinuxResult from "./pages/LinuxResult"; 
 import NetworkResult from "./pages/NetworkResult";
 import { ReactNode } from 'react';

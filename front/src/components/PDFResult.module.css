@@ -1,0 +1,135 @@
+/* components/PDFResult.module.css */
+.container {
+    display: flex;
+    height: 100vh;
+  }
+  
+  .loading {
+    font-size: 1.3rem;
+  }
+  
+  .pdfPanel {
+    flex: 3;
+    height: 100%;
+    position: relative;
+    overflow: auto;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .pdfFrame {
+    width: 130%;
+    height: 100%;
+    border: none;
+    margin: auto;
+  }
+  
+  .resultPanel {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    border-left: 1px solid #eee;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .header {
+    position: sticky;
+    top: 0;
+    background-color: white;
+    padding: 20px 0;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 20px;
+    z-index: 10;
+  }
+  
+  .title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+  
+  .score {
+    font-size: 1.3rem;
+    margin-bottom: 20px;
+  }
+  
+  .passed {
+    color: #28a745;
+  }
+  
+  .failed {
+    color: #dc3545;
+  }
+  
+  .buttonContainer {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .retryButton, .homeButton {
+    padding: 12px 24px;
+    color: white;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 1.1rem;
+    font-weight: 500;
+    flex: 1;
+    text-align: center;
+  }
+  
+  .homeButton {
+    background-color: #2196F3;
+  }
+  
+  .reviewSection {
+    flex: 1;
+  }
+  
+  .reviewTitle {
+    font-size: 1.3rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+  
+  .questionItem {
+    margin-bottom: 10px;
+    padding: 12px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  
+  .correct {
+    background-color: rgba(40, 167, 69, 0.1);
+    border: 1px solid #28a745;
+  }
+  
+  .incorrect {
+    background-color: rgba(220, 53, 69, 0.1);
+    border: 1px solid #dc3545;
+  }
+  
+  .questionNumber, .userAnswer, .correctAnswer {
+    font-size: 1.1rem;
+    width: 100px;
+  }
+  
+  .questionNumber, .correctAnswer {
+    font-weight: bold;
+  }
+  
+  .result {
+    margin-left: auto;
+    font-size: 1.1rem;
+    font-weight: bold;
+  }
+  
+  .resultCorrect {
+    color: #28a745;
+  }
+  
+  .resultIncorrect {
+    color: #dc3545;
+  }
