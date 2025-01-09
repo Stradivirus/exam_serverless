@@ -18,6 +18,7 @@ function NCAQuiz() {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [answers, setAnswers] = useState<{[key: string]: string}>({});
   const [isLoading, setIsLoading] = useState(true);
+  const [currentQuestion, setCurrentQuestion] = useState(0);  // 추가된 부분
 
   useEffect(() => {
     fetch(`${API_URL}/nca/questions`)
@@ -72,6 +73,9 @@ function NCAQuiz() {
             index={index}
             answers={answers}
             setAnswers={setAnswers}
+            questions={questions}
+            currentQuestion={currentQuestion}
+            setCurrentQuestion={setCurrentQuestion}
           />
         ))}
       </form>

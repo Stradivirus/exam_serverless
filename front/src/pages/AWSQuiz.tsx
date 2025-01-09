@@ -29,6 +29,7 @@ function AWSQuiz() {
  const [answers, setAnswers] = useState<{[key: string]: string}>({});
  const [isLoading, setIsLoading] = useState(true);
  const [error, setError] = useState<string | null>(null);
+ const [currentQuestion, setCurrentQuestion] = useState(0);
 
  const shuffleChoices = (questions: Question[]): Question[] => {
    return questions.map(question => {
@@ -114,6 +115,15 @@ function AWSQuiz() {
    return <LoadingContainer />;
  }
 
+ if (error) {
+   return (
+     <div className={styles.errorContainer}>
+       <div>문제 로딩 중 오류가 발생했습니다</div>
+       <div className={styles.errorMessage}>{error}</div>
+     </div>
+   );
+ }
+
  return (
    <div className={styles.container}>
      <QuizHeader 
@@ -129,6 +139,9 @@ function AWSQuiz() {
            index={index}
            answers={answers}
            setAnswers={setAnswers}
+           questions={questions}
+           currentQuestion={currentQuestion}
+           setCurrentQuestion={setCurrentQuestion}
          />
        ))}
      </form>
