@@ -17,6 +17,7 @@ interface QuizResponse {
 }
 
 interface PDFResultProps {
+  type: string;
   getTitle: (filename: string | undefined) => string;
   buttonColor?: string;
 }

@@ -11,6 +11,8 @@ export interface ResultData {
    choices: {
      [key: string]: string;
    };
+   user_answer: string;
+    correct_answer: string;
    is_correct: boolean;
    user_answer_text?: string;
    correct_answer_text?: string;
@@ -62,6 +64,8 @@ interface QuestionReviewCardProps {
  questionNumber: number;
  questionText: string;
  choices: { [key: string]: string };
+ userAnswer: string;
+  correctAnswer: string;
  isCorrect: boolean;
  userAnswerText?: string;
  correctAnswerText?: string;
