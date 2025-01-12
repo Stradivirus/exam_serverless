@@ -85,7 +85,7 @@ export const QuizQuestion: React.FC<QuizQuestionProps> = ({
 
   const handleKeyPress = useCallback((event: KeyboardEvent) => {
     if (currentQuestion !== index) return;
-
+  
     if (
       document.activeElement?.tagName === 'INPUT' ||
       document.activeElement?.tagName === 'TEXTAREA' ||
@@ -93,11 +93,13 @@ export const QuizQuestion: React.FC<QuizQuestionProps> = ({
     ) {
       return;
     }
-
-    const isRegularNumber = event.code.startsWith('Digit') && ['1', '2', '3', '4'].includes(event.key);
-    const isNumpadNumber = event.code.startsWith('Numpad') && ['1', '2', '3', '4'].includes(event.key);
-    
-    if (isRegularNumber || isNumpadNumber) {
+  
+    // Firefox의 페이지 내 검색 기능 방지
+    event.preventDefault();
+  
+    // key 값으로 직접 체크
+    const validKeys = ['1', '2', '3', '4'];
+    if (validKeys.includes(event.key)) {
       const numToLetter: { [key: string]: string } = {
         '1': 'A',
         '2': 'B',
