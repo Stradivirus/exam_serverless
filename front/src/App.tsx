@@ -13,9 +13,6 @@ import './App.css';
 function HomePage() {
   return (
     <div className="home-container">
-      <p className="browser-notice">
-        * 키보드로 답안 선택하기(1~4)는 Microsoft Edge 브라우저에서만 지원됩니다.
-      </p>
       <h1 className="main-title">
         NCA, AWS 기출문제
       </h1>
