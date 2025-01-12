@@ -155,8 +155,16 @@ function PDFViewer() {
   // 스크롤 핸들러 (메모이제이션)
   const scrollToQuestion = useCallback((questionNumber: number) => {
     const element = document.getElementById(`question-${questionNumber}`);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    const container = answerListRef.current;
+    if (element && container) {
+      const elementRect = element.getBoundingClientRect();
+      const containerRect = container.getBoundingClientRect();
+      const relativeTop = elementRect.top - containerRect.top;
+      
+      container.scrollBy({
+        top: relativeTop - container.clientHeight / 2,
+        behavior: 'smooth'
+      });
     }
   }, []);
 
