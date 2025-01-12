@@ -93,6 +93,6 @@ def txt_to_json_aws_questions(input_file: str, output_file: str):
 
 # Example usage
 if __name__ == "__main__":
-    input_file = "aws1-1.txt"
-    output_file = "aws_1-1.json"
+    input_file = "Aws_sysops.txt"
+    output_file = "Aws_sysops.json"
     txt_to_json_aws_questions(input_file, output_file)
