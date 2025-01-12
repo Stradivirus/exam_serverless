@@ -54,6 +54,22 @@ interface QuizQuestionProps {
   setCurrentQuestion: React.Dispatch<React.SetStateAction<number>>;
 }
 
+const formatQuestionText = (text: string): string => {
+  // '. '로 문장을 분리 (마침표 뒤에 공백이 있는 경우만)
+  const sentences = text.split(/(?<=\. )/);
+  
+  if (sentences.length >= 3) {
+    // 마지막 문장을 제외한 모든 문장을 결합
+    const mainText = sentences.slice(0, -1).join('');
+    // 마지막 문장
+    const lastSentence = sentences[sentences.length - 1];
+    // 줄바꿈을 추가하여 결합
+    return `${mainText}\n${lastSentence}`;
+  }
+  
+  return text;
+};
+
 export const QuizQuestion: React.FC<QuizQuestionProps> = ({ 
   question, 
   index, 
@@ -115,13 +131,15 @@ export const QuizQuestion: React.FC<QuizQuestionProps> = ({
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [handleKeyPress]);
 
+  const formattedQuestion = formatQuestionText(question.question);
+
   return (
     <div 
       id={`question-${index}`}
       className={`${styles.questionCard} ${currentQuestion === index ? styles.currentQuestion : ''}`}
     >
       <h3 className={styles.questionTitle}>
-        {index + 1}. {question.question}
+        {index + 1}. {formattedQuestion}
         {!answers[question.id] && (
           <span className={styles.unansweredTag}>미선택</span>
         )}

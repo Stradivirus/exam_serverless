@@ -161,6 +161,10 @@
  flex: 1;
 }
 
+.questionTitle {
+    white-space: pre-wrap;
+}
+
 /* 선택된 답안 스타일 */
 .choiceLabel input:checked + .choiceText {
  color: #1976d2;
