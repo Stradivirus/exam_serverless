@@ -35,6 +35,7 @@ function PDFViewer() {
 
   // 키보드 이벤트 핸들러 (메모이제이션)
   const handleKeyPress = useCallback((event: KeyboardEvent) => {
+    // 입력 필드에서는 동작하지 않도록
     if (
       document.activeElement?.tagName === 'INPUT' ||
       document.activeElement?.tagName === 'TEXTAREA' ||
@@ -42,11 +43,12 @@ function PDFViewer() {
     ) {
       return;
     }
-
-    const isRegularNumber = event.code.startsWith('Digit') && ['1', '2', '3', '4'].includes(event.key);
-    const isNumpadNumber = event.code.startsWith('Numpad') && ['1', '2', '3', '4'].includes(event.key);
-    
-    if (isRegularNumber || isNumpadNumber) {
+  
+    // Firefox의 페이지 내 검색 기능 방지
+    event.preventDefault();
+  
+    const validKeys = ['1', '2', '3', '4'];
+    if (validKeys.includes(event.key)) {
       setAnswers(prev => {
         const newAnswers = { ...prev, [currentQuestion]: event.key };
         
@@ -156,15 +158,21 @@ function PDFViewer() {
   const scrollToQuestion = useCallback((questionNumber: number) => {
     const element = document.getElementById(`question-${questionNumber}`);
     const container = answerListRef.current;
-    if (element && container) {
-      const elementRect = element.getBoundingClientRect();
-      const containerRect = container.getBoundingClientRect();
-      const relativeTop = elementRect.top - containerRect.top;
       
-      container.scrollBy({
-        top: relativeTop - container.clientHeight / 2,
-        behavior: 'smooth'
+    if (element && container) {
+      // 요소의 offsetTop을 기준으로 스크롤 위치 계산
+      const scrollPosition = element.offsetTop - (container.clientHeight / 2) + (element.clientHeight / 2);
+      
+      // requestAnimationFrame을 사용하여 다음 프레임에서 스크롤 실행
+      requestAnimationFrame(() => {
+        container.scrollTo({
+          top: scrollPosition,
+          behavior: 'smooth'
+        });
       });
+  
+      // 현재 질문 번호 업데이트
+      setCurrentQuestion(questionNumber);
     }
   }, []);
 

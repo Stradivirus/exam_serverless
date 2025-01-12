@@ -178,3 +178,10 @@
     border: 1px solid #ddd;
     background: white;
   }
+
+  .answerList {
+    position: relative;  /* 추가 */
+    height: calc(100vh - [controlsHeader의 높이]px);  /* 추가 */
+    overflow-y: auto;
+    scroll-behavior: smooth;  /* 추가 */
+  }
