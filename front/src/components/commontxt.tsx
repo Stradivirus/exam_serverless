@@ -3,7 +3,7 @@ import React, { useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import styles from './commontxt.module.css';
 
-export const API_URL = 'https://asia-northeast3-master-coder-441716-a4.cloudfunctions.net/examhandler';
+export const API_URL = 'https://asia-northeast3-eng-hangar-450811-c1.cloudfunctions.net/examhandler';
 
 export const LoadingContainer: React.FC = () => (
   <div className={styles.loadingContainer}>
