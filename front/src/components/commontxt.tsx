@@ -1,8 +1,9 @@
-// commontxt.tsx
+// components/commontxt.tsx
 import React, { useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import styles from './commontxt.module.css';
-import { API_URL } from './urls';
+
+export const API_URL = 'https://asia-northeast3-eng-hangar-450811-c1.cloudfunctions.net/examhandler';
 
 export const LoadingContainer: React.FC = () => (
   <div className={styles.loadingContainer}>
@@ -54,11 +55,15 @@ interface QuizQuestionProps {
 }
 
 const formatQuestionText = (text: string): string => {
+  // '. '로 문장을 분리 (마침표 뒤에 공백이 있는 경우만)
   const sentences = text.split(/(?<=\. )/);
   
   if (sentences.length >= 3) {
+    // 마지막 문장을 제외한 모든 문장을 결합
     const mainText = sentences.slice(0, -1).join('');
+    // 마지막 문장
     const lastSentence = sentences[sentences.length - 1];
+    // 줄바꿈을 추가하여 결합
     return `${mainText}\n${lastSentence}`;
   }
   
@@ -105,8 +110,10 @@ export const QuizQuestion: React.FC<QuizQuestionProps> = ({
       return;
     }
   
+    // Firefox의 페이지 내 검색 기능 방지
     event.preventDefault();
   
+    // key 값으로 직접 체크
     const validKeys = ['1', '2', '3', '4'];
     if (validKeys.includes(event.key)) {
       const numToLetter: { [key: string]: string } = {

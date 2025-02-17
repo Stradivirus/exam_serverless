@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import styles from './PDFViewer.module.css';
-import { getPDFCheckURL } from './urls';
 
 function PDFViewer() {
   const { filename } = useParams();
@@ -20,6 +19,7 @@ function PDFViewer() {
     Array.from({length: questionCount}, (_, i) => i + 1)
   );
 
+  // 다음 답안이 없는 문제 찾기 (메모이제이션)
   const getNextUnansweredQuestion = useCallback((current: number, answers: Record<string, string>) => {
     let next = current + 1;
     while (next <= questionCount && answers[next]) {
@@ -28,11 +28,14 @@ function PDFViewer() {
     return next <= questionCount ? next : current;
   }, [questionCount]);
 
+  // 컴포넌트 마운트 시 답안 영역으로 포커스
   useEffect(() => {
     answerListRef.current?.focus();
   }, []);
 
+  // 키보드 이벤트 핸들러 (메모이제이션)
   const handleKeyPress = useCallback((event: KeyboardEvent) => {
+    // 입력 필드에서는 동작하지 않도록
     if (
       document.activeElement?.tagName === 'INPUT' ||
       document.activeElement?.tagName === 'TEXTAREA' ||
@@ -41,6 +44,7 @@ function PDFViewer() {
       return;
     }
   
+    // Firefox의 페이지 내 검색 기능 방지
     event.preventDefault();
   
     const validKeys = ['1', '2', '3', '4'];
@@ -63,11 +67,13 @@ function PDFViewer() {
     }
   }, [currentQuestion, questionCount, getNextUnansweredQuestion]);
 
+  // 키보드 이벤트 리스너
   useEffect(() => {
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [handleKeyPress]);
 
+  // 타이머 설정 (최적화)
   useEffect(() => {
     timerRef.current = setInterval(() => {
       setTimer(prev => {
@@ -89,6 +95,7 @@ function PDFViewer() {
     };
   }, []);
 
+  // 답안 선택 핸들러 (메모이제이션)
   const handleAnswerSelect = useCallback((questionNumber: number, answer: string) => {
     setAnswers(prev => {
       const newAnswers = { ...prev, [questionNumber]: answer };
@@ -108,6 +115,7 @@ function PDFViewer() {
     answerListRef.current?.focus();
   }, [currentQuestion, questionCount, getNextUnansweredQuestion]);
 
+  // 제출 핸들러
   const handleSubmit = async () => {
     if (Object.keys(answers).length === 0) {
       alert('최소 한 문제 이상 답안을 선택해주세요.');
@@ -122,7 +130,7 @@ function PDFViewer() {
     
     try {
       const response = await fetch(
-        getPDFCheckURL(examType, checkPath),
+        `https://asia-northeast3-eng-hangar-450811-c1.cloudfunctions.net/examhandler/${examType}/check/${checkPath}`,
         {
           method: 'POST',
           headers: {
@@ -146,13 +154,16 @@ function PDFViewer() {
     }
   };
 
+  // 스크롤 핸들러 (메모이제이션)
   const scrollToQuestion = useCallback((questionNumber: number) => {
     const element = document.getElementById(`question-${questionNumber}`);
     const container = answerListRef.current;
       
     if (element && container) {
+      // 요소의 offsetTop을 기준으로 스크롤 위치 계산
       const scrollPosition = element.offsetTop - (container.clientHeight / 2) + (element.clientHeight / 2);
       
+      // requestAnimationFrame을 사용하여 다음 프레임에서 스크롤 실행
       requestAnimationFrame(() => {
         container.scrollTo({
           top: scrollPosition,
@@ -160,12 +171,14 @@ function PDFViewer() {
         });
       });
   
+      // 현재 질문 번호 업데이트
       setCurrentQuestion(questionNumber);
     }
   }, []);
 
   const hasAnswers = Object.keys(answers).length > 0;
 
+  // 미답변 문제 버튼 목록 (메모이제이션)
   const unansweredButtons = useMemo(() => 
     unansweredQuestions.map(q => (
       <button
@@ -180,6 +193,7 @@ function PDFViewer() {
       </button>
     )), [unansweredQuestions, scrollToQuestion]);
 
+  // 답안 선택 영역 (메모이제이션)
   const answerButtons = useMemo(() => 
     Array.from({length: questionCount}, (_, i) => i + 1).map(questionNumber => (
       <div 
@@ -216,6 +230,7 @@ function PDFViewer() {
 
   return (
     <div className={styles.container}>
+      {/* PDF 뷰어 */}
       <div className={styles.pdfPanel}>
         <iframe
           src={`/pdf/${filename}#toolbar=0&search=0&find=0`}
@@ -224,6 +239,7 @@ function PDFViewer() {
         />
       </div>
 
+      {/* 중앙 패널 - 미답변 문제 */}
       <div className={styles.sidePanel}>
         <h3 className={styles.sidePanelTitle}>
           미답변 문제
@@ -233,6 +249,7 @@ function PDFViewer() {
         </div>
       </div>
 
+      {/* 답안 입력 패널 */}
       <div className={styles.answerPanel}>
         <div className={styles.controlsHeader}>
           <div className={styles.controlsContainer}>
