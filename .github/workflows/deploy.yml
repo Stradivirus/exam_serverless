@@ -1,11 +1,11 @@
-name: Deploy to S3
+name: Deploy to Oracle Cloud
 
 on:
   push:
     branches:
       - master
     paths:
-      - 'front/**'  # front 폴더의 변경사항만 감지
+      - 'front/**'  # front 폴더 변경사항 감지
 
 jobs:
   deploy:
@@ -28,19 +28,18 @@ jobs:
       - name: Build
         working-directory: ./front
         run: npm run build
-        
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-northeast-2
-          
-      - name: Deploy to S3
-        run: aws s3 sync front/dist/ s3://exam-serverless --delete
 
-      - name: Invalidate CloudFront Cache
+      # AWS 관련 단계 삭제 후 Oracle Cloud 배포 단계 추가
+      - name: Prepare SSH Key
         run: |
-          aws cloudfront create-invalidation \
-            --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
-            --paths "/*"
+          mkdir -p ~/.ssh
+          echo "$SSH_KEY" > ~/.ssh/oracle_rsa
+          chmod 600 ~/.ssh/oracle_rsa
+          echo "StrictHostKeyChecking no" >> ~/.ssh/config
+        env:
+          SSH_KEY: ${{ secrets.ORACLE_SSH_KEY }}
+
+      - name: Deploy via SCP
+        run: |
+          scp -i ~/.ssh/oracle_rsa -o UserKnownHostsFile=/dev/null -r front/dist/* ${{ secrets.SSH_USER }}@${{ secrets.ORACLE_SERVER_IP }}:/var/www/html
+          ssh -i ~/.ssh/oracle_rsa ${{ secrets.SSH_USER }}@${{ secrets.ORACLE_SERVER_IP }} "sudo systemctl reload nginx"
