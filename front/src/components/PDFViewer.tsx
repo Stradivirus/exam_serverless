@@ -118,7 +118,7 @@ function PDFViewer() {
   // 제출 핸들러
   const handleSubmit = async () => {
     if (Object.keys(answers).length === 0) {
-      alert('최소 한 문제 이상 답안을 선택해주세요.');
+      alert('답안을 선택해주세요.');
       return;
     }
 
