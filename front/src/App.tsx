@@ -24,7 +24,7 @@ function HomePage() {
          to="/nca/quiz" 
          className="main-button nca-button"
        >
-         NAVER Cloud Platform Certified Associate<br></br> (117문제 중 20문제)
+         NAVER Cloud Platform Certified Associate<br></br> (20문제)
        </Link>
        
        <div className="aws-button-group">
@@ -32,21 +32,21 @@ function HomePage() {
            to="/aws/quiz" 
            className="main-button aws-button"
          >
-           AWS Solution Architect Associate<br></br> (331문제 중 20문제)
+           AWS Solution Architect Associate<br></br> (20문제)
          </Link>
          
          <Link 
            to="/aws-sysops/quiz" 
            className="main-button aws-button"
          >
-           AWS SysOps Administrator<br></br> (250문제 중 20문제)
+           AWS SysOps Administrator<br></br> (20문제)
          </Link>
        </div>
      </div>
 
      <div className="section-container">
        <h2 className="section-title">
-         LINUX 1급 기출문제 (총 4회)
+         LINUX 1급 기출문제 (4회)
        </h2>
        <div className="button-grid">
          {[
@@ -68,7 +68,7 @@ function HomePage() {
 
      <div className="section-container">
        <h2 className="section-title">
-         네트워크 관리사 2급 기출문제 (총 7회)
+         네트워크 관리사 2급 기출문제 (7회)
        </h2>
        <div className="button-grid">
          {[
