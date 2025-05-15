@@ -130,7 +130,7 @@ function PDFViewer() {
     
     try {
       const response = await fetch(
-        `https://asia-northeast3-eng-hangar-450811-c1.cloudfunctions.net/examhandler/${examType}/check/${checkPath}`,
+        `https://exam-serverless-916058497164.asia-northeast3.run.app/${examType}/check/${checkPath}`,
         {
           method: 'POST',
           headers: {
