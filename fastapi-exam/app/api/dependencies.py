@@ -1,5 +1,5 @@
 from fastapi import Depends
-from pymongo import MongoClient
+from motor import MongoClient
 from app.db.mongo import get_database
 
 def get_collection(exam_type: str):

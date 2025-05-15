@@ -41,5 +41,5 @@ jobs:
 
       - name: Deploy via SCP
         run: |
-          scp -i ~/.ssh/oracle_rsa -o UserKnownHostsFile=/dev/null -r front/dist/* ${{ secrets.SSH_USER }}@${{ secrets.ORACLE_SERVER_IP }}:/var/www/html
+          scp -i ~/.ssh/oracle_rsa -o UserKnownHostsFile=/dev/null -r front/dist/* ${{ secrets.SSH_USER }}@${{ secrets.ORACLE_SERVER_IP }}:/var/www/html2
           ssh -i ~/.ssh/oracle_rsa ${{ secrets.SSH_USER }}@${{ secrets.ORACLE_SERVER_IP }} "sudo systemctl reload nginx"

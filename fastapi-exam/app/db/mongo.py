@@ -1,4 +1,4 @@
-from pymongo import MongoClient
+from motor import MongoClient
 from fastapi import HTTPException
 
 MONGO_URI = "mongodb+srv://stradivirus:1q2w3e4r@cluster0.e7rvfpz.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
