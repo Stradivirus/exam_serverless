@@ -1,7 +1,8 @@
+package main
+
 import (
 	"log"
 	"net/http"
-	"strings"
 
 	"example.com/examhandler/examhandler"
 )
