@@ -3,14 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { LoadingContainer, QuizHeader, QuizQuestion } from '../components/commontxt';
 import styles from '../style/commontxt.module.css';
 import { fetchQuestions, submitAnswers } from '../api/examApi';
+import { Question } from '../types/question';
 
-interface Question {
-  id: string;
-  question: string;
-  choice_a: string;
-  choice_b: string;
-  choice_c: string;
-  choice_d: string;
+interface ShuffledQuestion extends Question {
   shuffledChoices?: Array<{ key: string; value: string }>;
 }
 
@@ -25,13 +20,13 @@ function shuffleArray<T>(array: T[]): T[] {
 
 function AWSSAAQuiz() {
   const navigate = useNavigate();
-  const [questions, setQuestions] = useState<Question[]>([]);
+  const [questions, setQuestions] = useState<ShuffledQuestion[]>([]);
   const [answers, setAnswers] = useState<{ [key: string]: string }>({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentQuestion, setCurrentQuestion] = useState(0);
 
-  const shuffleChoices = (questions: Question[]): Question[] => {
+  const shuffleChoices = (questions: Question[]): ShuffledQuestion[] => {
     return questions.map(question => {
       const choicesArray = [
         { key: 'A', value: question.choice_a },
@@ -109,16 +104,33 @@ function AWSSAAQuiz() {
       />
       <form id="quiz-form" onSubmit={handleSubmit}>
         {questions.map((question, index) => (
-          <QuizQuestion
-            key={question.id}
-            question={question}
-            index={index}
-            answers={answers}
-            setAnswers={setAnswers}
-            questions={questions}
-            currentQuestion={currentQuestion}
-            setCurrentQuestion={setCurrentQuestion}
-          />
+          <div key={question.id}>
+            <div className={styles.questionCard}>
+              <div className={styles.questionNumber}>{index + 1}번</div>
+              <div className={styles.questionText}>{question.question}</div>
+              <div className={styles.choices}>
+                {question.shuffledChoices
+                  ? question.shuffledChoices.map(choice => (
+                      <label key={choice.key} className={styles.choiceLabel}>
+                        <input
+                          type="radio"
+                          name={`question-${question.id}`}
+                          value={choice.value}
+                          checked={answers[question.id] === choice.value}
+                          onChange={() =>
+                            setAnswers(prev => ({
+                              ...prev,
+                              [question.id]: choice.value,
+                            }))
+                          }
+                        />
+                        <span className={styles.choiceKey}>{choice.key}.</span> {choice.value}
+                      </label>
+                    ))
+                  : null}
+              </div>
+            </div>
+          </div>
         ))}
       </form>
     </div>

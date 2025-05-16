@@ -1,6 +1,7 @@
 // components/commontxt.tsx
 import { useCallback, useEffect } from 'react';
 import styles from '../style/commontxt.module.css';
+import { Question } from '../types/question';
 
 export const LoadingContainer: React.FC = () => (
   <div className={styles.loadingContainer}>
@@ -30,16 +31,6 @@ export const QuizHeader: React.FC<QuizHeaderProps> = ({ title, isSubmittable }) 
     </div>
   </div>
 );
-
-interface Question {
-  id: string;
-  question: string;
-  choice_a: string;
-  choice_b: string;
-  choice_c: string;
-  choice_d: string;
-  [key: `choice_${string}`]: string;
-}
 
 interface QuizQuestionProps {
   question: Question;
@@ -81,7 +72,7 @@ export const QuizQuestion: React.FC<QuizQuestionProps> = ({
     if (currentQuestion === index && index < questions.length - 1) {
       setCurrentQuestion(index + 1);
     }
-  }, [question.id, index, questions, answers, setAnswers, setCurrentQuestion, currentQuestion]);
+  }, [question.id, index, questions, setAnswers, setCurrentQuestion, currentQuestion]);
 
   const handleKeyPress = useCallback((event: KeyboardEvent) => {
     if (currentQuestion !== index) return;
@@ -103,16 +94,16 @@ export const QuizQuestion: React.FC<QuizQuestionProps> = ({
       <div className={styles.questionNumber}>{index + 1}번</div>
       <div className={styles.questionText}>{formattedQuestion}</div>
       <div className={styles.choices}>
-        {(['A', 'B', 'C', 'D'] as const).map(key => (
-          <label key={key} className={styles.choiceLabel}>
+        {(['a', 'b', 'c', 'd'] as const).map(key => (
+          <label key={key.toUpperCase()} className={styles.choiceLabel}>
             <input
               type="radio"
               name={`question-${question.id}`}
-              value={key}
-              checked={answers[question.id] === key}
-              onChange={() => handleAnswerSelect(key)}
+              value={key.toUpperCase()}
+              checked={answers[question.id] === key.toUpperCase()}
+              onChange={() => handleAnswerSelect(key.toUpperCase())}
             />
-            <span className={styles.choiceKey}>{key}.</span> {question[`choice_${key.toLowerCase()}`]}
+            <span className={styles.choiceKey}>{key.toUpperCase()}.</span> {question[`choice_${key}`]}
           </label>
         ))}
       </div>

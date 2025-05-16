@@ -3,15 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { LoadingContainer, QuizHeader, QuizQuestion } from '../components/commontxt';
 import styles from '../style/commontxt.module.css';
 import { fetchQuestions, submitAnswers } from '../api/examApi';
-
-interface Question {
-  id: string;
-  question: string;
-  choice_a: string;
-  choice_b: string;
-  choice_c: string;
-  choice_d: string;
-}
+import { Question } from '../types/question';
 
 function NCAQuiz() {
   const navigate = useNavigate();
