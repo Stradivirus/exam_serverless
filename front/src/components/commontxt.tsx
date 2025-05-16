@@ -38,13 +38,14 @@ interface Question {
   choice_b: string;
   choice_c: string;
   choice_d: string;
+  [key: `choice_${string}`]: string;
 }
 
 interface QuizQuestionProps {
   question: Question;
   index: number;
-  answers: {[key: string]: string};
-  setAnswers: React.Dispatch<React.SetStateAction<{[key: string]: string}>>;
+  answers: { [key: string]: string };
+  setAnswers: React.Dispatch<React.SetStateAction<{ [key: string]: string }>>;
   questions: Question[];
   currentQuestion: number;
   setCurrentQuestion: React.Dispatch<React.SetStateAction<number>>;
@@ -53,19 +54,19 @@ interface QuizQuestionProps {
 const formatQuestionText = (text: string): string => {
   // '. '로 문장을 분리 (마침표 뒤에 공백이 있는 경우만)
   const sentences = text.split(/(?<=\. )/);
-  
+
   if (sentences.length >= 3) {
     // 마지막 문장을 제외한 모든 문장을 결합
     return sentences.slice(0, -1).join('') + sentences[sentences.length - 1];
   }
-  
+
   return text;
 };
 
-export const QuizQuestion: React.FC<QuizQuestionProps> = ({ 
-  question, 
-  index, 
-  answers, 
+export const QuizQuestion: React.FC<QuizQuestionProps> = ({
+  question,
+  index,
+  answers,
   setAnswers,
   questions,
   currentQuestion,
