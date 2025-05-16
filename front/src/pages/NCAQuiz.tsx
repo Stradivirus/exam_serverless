@@ -1,8 +1,8 @@
-// pages/NCAQuiz.tsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { API_URL, LoadingContainer, QuizHeader, QuizQuestion } from '../components/commontxt';
-import styles from '../components/commontxt.module.css';
+import { LoadingContainer, QuizHeader, QuizQuestion } from '../components/commontxt';
+import styles from '../style/commontxt.module.css';
+import { fetchQuestions, submitAnswers } from '../api/examApi';
 
 interface Question {
   id: string;
@@ -16,39 +16,37 @@ interface Question {
 function NCAQuiz() {
   const navigate = useNavigate();
   const [questions, setQuestions] = useState<Question[]>([]);
-  const [answers, setAnswers] = useState<{[key: string]: string}>({});
+  const [answers, setAnswers] = useState<{ [key: string]: string }>({});
   const [isLoading, setIsLoading] = useState(true);
-  const [currentQuestion, setCurrentQuestion] = useState(0);  // 추가된 부분
+  const [error, setError] = useState<string | null>(null);
+  const [currentQuestion, setCurrentQuestion] = useState(0);
 
   useEffect(() => {
-    fetch(`${API_URL}/nca/questions`)
-      .then(response => response.json())
+    fetchQuestions('nca')
       .then(data => {
-        setQuestions(data);
+        const questionsData = Array.isArray(data) ? data : data.questions;
+        if (!questionsData || questionsData.length === 0) {
+          throw new Error('No questions found in data');
+        }
+        setQuestions(questionsData);
         setIsLoading(false);
+        setError(null);
       })
       .catch(error => {
-        console.error('Error fetching questions:', error);
         setIsLoading(false);
+        setError(error.message || '문제 불러오기 실패');
+        setQuestions([]);
       });
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch(`${API_URL}/nca/check`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(answers)
-      });
-
-      const result = await response.json();
+      const result = await submitAnswers('nca', answers);
       sessionStorage.setItem('quizResults', JSON.stringify(result));
       navigate('/nca/result');
-    } catch (error) {
-      console.error('Error submitting answers:', error);
+    } catch (error: any) {
+      setError(error.message || '답안 제출 실패');
     }
   };
 
@@ -58,13 +56,21 @@ function NCAQuiz() {
     return <LoadingContainer />;
   }
 
+  if (error) {
+    return (
+      <div className={styles.errorContainer}>
+        <div>문제 로딩 중 오류가 발생했습니다</div>
+        <div className={styles.errorMessage}>{error}</div>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.container}>
-      <QuizHeader 
-        title="NAVER Cloud Platform Certified Associate 기출문제 (117문제 중 20문제)" 
-        isSubmittable={isSubmittable} 
+      <QuizHeader
+        title="Naver Cloud Platform Associate 기출문제"
+        isSubmittable={isSubmittable}
       />
-
       <form id="quiz-form" onSubmit={handleSubmit}>
         {questions.map((question, index) => (
           <QuizQuestion

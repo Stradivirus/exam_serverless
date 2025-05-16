@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import styles from './PDFViewer.module.css';
+import styles from '../style/PDFViewer.module.css';
 
 function PDFViewer() {
   const { filename } = useParams();
@@ -16,7 +16,7 @@ function PDFViewer() {
   const [timer, setTimer] = useState<number>(examTime);
   const [currentQuestion, setCurrentQuestion] = useState<number>(1);
   const [unansweredQuestions, setUnansweredQuestions] = useState<number[]>(
-    Array.from({length: questionCount}, (_, i) => i + 1)
+    Array.from({ length: questionCount }, (_, i) => i + 1)
   );
 
   // 다음 답안이 없는 문제 찾기 (메모이제이션)
@@ -43,15 +43,15 @@ function PDFViewer() {
     ) {
       return;
     }
-  
+
     // Firefox의 페이지 내 검색 기능 방지
     event.preventDefault();
-  
+
     const validKeys = ['1', '2', '3', '4'];
     if (validKeys.includes(event.key)) {
       setAnswers(prev => {
         const newAnswers = { ...prev, [currentQuestion]: event.key };
-        
+
         if (currentQuestion < questionCount) {
           const nextQuestion = getNextUnansweredQuestion(currentQuestion, newAnswers);
           requestAnimationFrame(() => {
@@ -59,10 +59,10 @@ function PDFViewer() {
             scrollToQuestion(nextQuestion);
           });
         }
-        
+
         return newAnswers;
       });
-      
+
       setUnansweredQuestions(prev => prev.filter(q => q !== currentQuestion));
     }
   }, [currentQuestion, questionCount, getNextUnansweredQuestion]);
@@ -99,7 +99,7 @@ function PDFViewer() {
   const handleAnswerSelect = useCallback((questionNumber: number, answer: string) => {
     setAnswers(prev => {
       const newAnswers = { ...prev, [questionNumber]: answer };
-      
+
       if (questionNumber === currentQuestion && questionNumber < questionCount) {
         const nextQuestion = getNextUnansweredQuestion(questionNumber, newAnswers);
         requestAnimationFrame(() => {
@@ -107,7 +107,7 @@ function PDFViewer() {
           scrollToQuestion(nextQuestion);
         });
       }
-      
+
       return newAnswers;
     });
 
@@ -124,10 +124,10 @@ function PDFViewer() {
 
     const examType = isNetworkExam ? 'network' : 'linux';
     const pdfNumber = filename?.replace('.pdf', '').slice(-1);
-    const checkPath = isNetworkExam 
+    const checkPath = isNetworkExam
       ? filename?.match(/\d{8}/)?.[0]
       : `pdf${pdfNumber}`;
-    
+
     try {
       const response = await fetch(
         // `https://examgo-916058497164.asia-northeast3.run.app/${examType}/check/${checkPath}`,
@@ -159,11 +159,11 @@ function PDFViewer() {
   const scrollToQuestion = useCallback((questionNumber: number) => {
     const element = document.getElementById(`question-${questionNumber}`);
     const container = answerListRef.current;
-      
+
     if (element && container) {
       // 요소의 offsetTop을 기준으로 스크롤 위치 계산
       const scrollPosition = element.offsetTop - (container.clientHeight / 2) + (element.clientHeight / 2);
-      
+
       // requestAnimationFrame을 사용하여 다음 프레임에서 스크롤 실행
       requestAnimationFrame(() => {
         container.scrollTo({
@@ -171,7 +171,7 @@ function PDFViewer() {
           behavior: 'smooth'
         });
       });
-  
+
       // 현재 질문 번호 업데이트
       setCurrentQuestion(questionNumber);
     }
@@ -180,7 +180,7 @@ function PDFViewer() {
   const hasAnswers = Object.keys(answers).length > 0;
 
   // 미답변 문제 버튼 목록 (메모이제이션)
-  const unansweredButtons = useMemo(() => 
+  const unansweredButtons = useMemo(() =>
     unansweredQuestions.map(q => (
       <button
         key={q}
@@ -195,10 +195,10 @@ function PDFViewer() {
     )), [unansweredQuestions, scrollToQuestion]);
 
   // 답안 선택 영역 (메모이제이션)
-  const answerButtons = useMemo(() => 
-    Array.from({length: questionCount}, (_, i) => i + 1).map(questionNumber => (
-      <div 
-        key={questionNumber} 
+  const answerButtons = useMemo(() =>
+    Array.from({ length: questionCount }, (_, i) => i + 1).map(questionNumber => (
+      <div
+        key={questionNumber}
         id={`question-${questionNumber}`}
         className={`${styles.questionContainer} ${currentQuestion === questionNumber ? styles.current : ''}`}
       >
@@ -218,9 +218,8 @@ function PDFViewer() {
                 handleAnswerSelect(questionNumber, choice.toString());
                 answerListRef.current?.focus();
               }}
-              className={`${styles.choiceButton} ${
-                answers[questionNumber] === choice.toString() ? styles.selected : ''
-              }`}
+              className={`${styles.choiceButton} ${answers[questionNumber] === choice.toString() ? styles.selected : ''
+                }`}
             >
               {choice}
             </button>
@@ -272,7 +271,7 @@ function PDFViewer() {
           </div>
         </div>
 
-        <div 
+        <div
           ref={answerListRef}
           className={styles.answerList}
           tabIndex={-1}

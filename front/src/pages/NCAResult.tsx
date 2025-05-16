@@ -7,7 +7,7 @@ import {
  LoadingMessage,
  formatStoredResults 
 } from '../components/commontxtResult';
-import styles from '../components/commontxtResult.module.css';
+import styles from '../style/commontxtResult.module.css';
 
 function AWSResult() {
  const [result, setResult] = useState<ResultData | null>(null);

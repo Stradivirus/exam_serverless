@@ -1,7 +1,7 @@
 // components/PDFResult.tsx
 import { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import styles from './PDFResult.module.css';
+import styles from '../style/PDFResult.module.css';
 
 interface QuizResult {
   question_number: number;

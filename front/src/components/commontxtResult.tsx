@@ -1,7 +1,7 @@
 // components/commontxtResult.tsx
 import React from 'react';
 import { Link } from 'react-router-dom';
-import styles from './commontxtResult.module.css';
+import styles from '../style/commontxtResult.module.css';
 
 export interface ResultData {
  score: number;

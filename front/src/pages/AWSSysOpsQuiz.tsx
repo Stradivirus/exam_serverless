@@ -1,8 +1,9 @@
 // pages/AWSSysOpsQuiz.tsx
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { API_URL, LoadingContainer, QuizHeader, QuizQuestion } from '../components/commontxt';
-import styles from '../components/commontxt.module.css';
+import { QuizHeader, LoadingContainer, QuizQuestion } from '../components/commontxt';
+import styles from '../style/commontxt.module.css';
+import { fetchQuestions, submitAnswers } from '../api/examApi';
 
 interface Question {
   id: string;
@@ -47,65 +48,26 @@ function AWSSysOpsQuiz() {
   };
 
   useEffect(() => {
-    fetch(`${API_URL}/awssysops/questions`)
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      })
+    fetchQuestions('awssysops')
       .then(data => {
-        if (!data) {
-          throw new Error('No data received');
-        }
-        
         const questionsData = Array.isArray(data) ? data : data.questions;
-        
-        if (!questionsData || questionsData.length === 0) {
-          throw new Error('No questions found in data');
-        }
-
-        const shuffledQuestions = shuffleChoices(questionsData);
-        setQuestions(shuffledQuestions);
+        setQuestions(shuffleChoices(questionsData));
         setIsLoading(false);
-        setError(null);
       })
       .catch(error => {
-        console.error('Error fetching questions:', error);
+        setError(error.message || '문제 불러오기 실패');
         setIsLoading(false);
-        setError(error.message);
-        setQuestions([]);
       });
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const originalAnswers = Object.fromEntries(
-        Object.entries(answers).map(([questionId, selectedValue]) => {
-          const question = questions.find(q => q.id === questionId);
-          if (!question?.shuffledChoices) return [questionId, selectedValue];
-          
-          const originalChoice = question.shuffledChoices.find(
-            choice => choice.value === selectedValue
-          );
-          return [questionId, originalChoice?.key || selectedValue];
-        })
-      );
-
-      const response = await fetch(`${API_URL}/awssysops/check`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(originalAnswers)
-      });
-
-      const result = await response.json();
+      const result = await submitAnswers('awssysops', answers);
       sessionStorage.setItem('quizResults', JSON.stringify(result));
       navigate('/awssysops/result');
-    } catch (error) {
-      console.error('Error submitting answers:', error);
+    } catch (error: any) {
+      setError(error.message || '답안 제출 실패');
     }
   };
 
@@ -118,8 +80,7 @@ function AWSSysOpsQuiz() {
   if (error) {
     return (
       <div className={styles.errorContainer}>
-        <div>문제 로딩 중 오류가 발생했습니다</div>
-        <div className={styles.errorMessage}>{error}</div>
+        {error}
       </div>
     );
   }
@@ -130,13 +91,12 @@ function AWSSysOpsQuiz() {
         title="AWS SysOps Administrator 기출문제"
         isSubmittable={isSubmittable} 
       />
-
       <form id="quiz-form" onSubmit={handleSubmit}>
-        {questions.map((question, index) => (
+        {questions.map((question, idx) => (
           <QuizQuestion
             key={question.id}
             question={question}
-            index={index}
+            index={idx}
             answers={answers}
             setAnswers={setAnswers}
             questions={questions}
