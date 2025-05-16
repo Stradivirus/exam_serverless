@@ -2,7 +2,6 @@
 
 import React from 'react';
 import styles from '../style/commontxtResult.module.css';
-import { Question } from '../types/question';
 
 export interface ResultData {
   score: number;

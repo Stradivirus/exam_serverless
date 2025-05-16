@@ -24,7 +24,6 @@ function AWSSysOpsQuiz() {
   const [answers, setAnswers] = useState<{[key: string]: string}>({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [currentQuestion, setCurrentQuestion] = useState(0);
 
   const shuffleChoices = (questions: Question[]): ShuffledQuestion[] => {
     return questions.map(question => {

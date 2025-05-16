@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LoadingContainer, QuizHeader, QuizQuestion } from '../components/commontxt';
+import { LoadingContainer, QuizHeader} from '../components/commontxt';
 import styles from '../style/commontxt.module.css';
 import { fetchQuestions, submitAnswers } from '../api/examApi';
 import { Question } from '../types/question';
@@ -24,7 +24,6 @@ function AWSSAAQuiz() {
   const [answers, setAnswers] = useState<{ [key: string]: string }>({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [currentQuestion, setCurrentQuestion] = useState(0);
 
   const shuffleChoices = (questions: Question[]): ShuffledQuestion[] => {
     return questions.map(question => {
