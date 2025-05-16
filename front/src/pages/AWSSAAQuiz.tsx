@@ -23,7 +23,7 @@ function shuffleArray<T>(array: T[]): T[] {
  return newArray;
 }
 
-function AWSQuiz() {
+function AWSSAAQuiz() {
  const navigate = useNavigate();
  const [questions, setQuestions] = useState<Question[]>([]);
  const [answers, setAnswers] = useState<{[key: string]: string}>({});
@@ -47,7 +47,7 @@ function AWSQuiz() {
  };
 
  useEffect(() => {
-   fetch(`${API_URL}/aws/questions`)
+   fetch(`${API_URL}/awssaa/questions`)
      .then(response => {
        if (!response.ok) {
          throw new Error('Network response was not ok');
@@ -93,7 +93,7 @@ function AWSQuiz() {
        })
      );
 
-     const response = await fetch(`${API_URL}/aws/check`, {
+     const response = await fetch(`${API_URL}/awssaa/check`, {
        method: 'POST',
        headers: {
          'Content-Type': 'application/json',
@@ -103,7 +103,7 @@ function AWSQuiz() {
 
      const result = await response.json();
      sessionStorage.setItem('quizResults', JSON.stringify(result));
-     navigate('/aws/result');
+     navigate('/awssaa/result');
    } catch (error) {
      console.error('Error submitting answers:', error);
    }
@@ -149,4 +149,4 @@ function AWSQuiz() {
  );
 }
 
-export default AWSQuiz;
+export default AWSSAAQuiz;

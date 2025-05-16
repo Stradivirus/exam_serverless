@@ -30,7 +30,7 @@ function AWSSysOpsResult() {
         score={result.score}
         total={result.total}
         passPercentage={0.7}
-        quizPath="/aws-sysops/quiz"
+        quizPath="/awssysops/quiz"
       />
 
       <div className={styles.mainContent}>

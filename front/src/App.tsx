@@ -2,8 +2,8 @@
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import NCAQuiz from "./pages/NCAQuiz";
 import NCAResult from "./pages/NCAResult";
-import AWSQuiz from "./pages/AWSQuiz";
-import AWSResult from "./pages/AWSResult";
+import AWSQuiz from "./pages/AWSSAAQuiz";
+import AWSResult from "./pages/AWSSAAResult";
 import AWSSysOpsQuiz from "./pages/AWSSysOpsQuiz";
 import AWSSysOpsResult from "./pages/AWSSysOpsResult";
 import PDFViewer from "./components/PDFViewer";    
@@ -29,14 +29,14 @@ function HomePage() {
        
        <div className="aws-button-group">
          <Link 
-           to="/aws/quiz" 
+           to="/awssaa/quiz" 
            className="main-button aws-button"
          >
            AWS Solution Architect Associate<br></br> (20문제)
          </Link>
          
          <Link 
-           to="/aws-sysops/quiz" 
+           to="/awssysops/quiz" 
            className="main-button aws-button"
          >
            AWS SysOps Administrator<br></br> (20문제)
@@ -118,10 +118,10 @@ function App() {
          <Route path="/" element={<HomePage />} />
          <Route path="/nca/quiz" element={<NCAQuiz />} />
          <Route path="/nca/result" element={<NCAResult />} />
-         <Route path="/aws/quiz" element={<AWSQuiz />} />
-         <Route path="/aws/result" element={<AWSResult />} />
-         <Route path="/aws-sysops/quiz" element={<AWSSysOpsQuiz />} />
-         <Route path="/aws-sysops/result" element={<AWSSysOpsResult />} />
+         <Route path="/awssaa/quiz" element={<AWSQuiz />} />
+         <Route path="/awssaa/result" element={<AWSResult />} />
+         <Route path="/awssysops/quiz" element={<AWSSysOpsQuiz />} />
+         <Route path="/awssysops/result" element={<AWSSysOpsResult />} />
          <Route path="/view_pdf/:filename" element={<PDFViewer />} />
          <Route path="/linux/result/:filename" element={<LinuxResult />} />
          <Route path="/network/result/:filename" element={<NetworkResult />} />

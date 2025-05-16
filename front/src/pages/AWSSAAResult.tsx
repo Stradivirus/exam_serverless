@@ -9,7 +9,7 @@ import {
 } from '../components/commontxtResult';
 import styles from '../components/commontxtResult.module.css';
 
-function AWSResult() {
+function AWSSAAResult() {
  const [result, setResult] = useState<ResultData | null>(null);
 
  useEffect(() => {
@@ -30,7 +30,7 @@ function AWSResult() {
        score={result.score}
        total={result.total}
        passPercentage={0.7}
-       quizPath="/aws/quiz"
+       quizPath="/awssaa/quiz"
      />
 
      <div className={styles.mainContent}>
@@ -53,4 +53,4 @@ function AWSResult() {
  );
 }
 
-export default AWSResult;
+export default AWSSAAResult;

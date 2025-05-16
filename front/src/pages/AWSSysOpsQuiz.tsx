@@ -47,7 +47,7 @@ function AWSSysOpsQuiz() {
   };
 
   useEffect(() => {
-    fetch(`${API_URL}/aws-sysops/questions`)
+    fetch(`${API_URL}/awssysops/questions`)
       .then(response => {
         if (!response.ok) {
           throw new Error('Network response was not ok');
@@ -93,7 +93,7 @@ function AWSSysOpsQuiz() {
         })
       );
 
-      const response = await fetch(`${API_URL}/aws-sysops/check`, {
+      const response = await fetch(`${API_URL}/awssysops/check`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -103,7 +103,7 @@ function AWSSysOpsQuiz() {
 
       const result = await response.json();
       sessionStorage.setItem('quizResults', JSON.stringify(result));
-      navigate('/aws-sysops/result');
+      navigate('/awssysops/result');
     } catch (error) {
       console.error('Error submitting answers:', error);
     }
