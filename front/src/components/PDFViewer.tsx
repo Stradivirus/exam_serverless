@@ -130,8 +130,8 @@ function PDFViewer() {
     
     try {
       const response = await fetch(
-        // `https://exam-serverless-916058497164.asia-northeast3.run.app/${examType}/check/${checkPath}`,
-        `http://localhost:8080/${examType}/check/${checkPath}`,
+        `https://examgo-916058497164.asia-northeast3.run.app/${examType}/check/${checkPath}`,
+        // `http://localhost:8080/${examType}/check/${checkPath}`,
         {
           method: 'POST',
           headers: {
