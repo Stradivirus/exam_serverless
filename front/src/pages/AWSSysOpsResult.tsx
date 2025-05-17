@@ -1,4 +1,3 @@
-// pages/AWSSysOpsResult.tsx
 import { useState, useEffect } from 'react';
 import {
   ResultHeader,
@@ -9,33 +8,22 @@ import {
 } from '../components/commontxtResult';
 import styles from '../style/commontxtResult.module.css';
 import { fetchQuestions } from '../api/examApi';
-import { Question } from '../types/question';
 
 function AWSSysOpsResult() {
   const [result, setResult] = useState<ResultData | null>(null);
-  const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function loadData() {
+    async function load() {
       setLoading(true);
-      try {
-        // 문제 데이터 불러오기
-        const data = await fetchQuestions('awssysops');
-        const questionsData = Array.isArray(data) ? data : data.questions;
-        setQuestions(questionsData || []);
-        // 결과 데이터 불러오기 및 포맷
-        const storedResults = sessionStorage.getItem('quizResults');
-        if (storedResults) {
-          setResult(formatStoredResults(storedResults, questionsData || []));
-        }
-      } catch (e) {
-        setResult(null);
-      } finally {
-        setLoading(false);
+      const storedResults = sessionStorage.getItem('quizResults');
+      const questionsData = await fetchQuestions('awssysops');
+      if (storedResults) {
+        setResult(formatStoredResults(storedResults, questionsData));
       }
+      setLoading(false);
     }
-    loadData();
+    load();
   }, []);
 
   if (loading || !result) {
