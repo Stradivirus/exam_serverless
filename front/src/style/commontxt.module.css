@@ -174,3 +174,10 @@
 .choiceLabel input:checked ~ .choiceLabel {
  background-color: #e3f2fd;
 }
+
+.questionText {
+ white-space: pre-wrap;
+ font-size: 1.2rem;
+ line-height: 1.6;
+ margin-bottom: 20px;
+}
