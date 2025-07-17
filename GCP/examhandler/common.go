@@ -20,6 +20,7 @@ var examCollections = map[string]string{
 
 func connectToDatabase() (*mongo.Client, error) {
    uri := os.Getenv("MONGODB_URI")
+   log.Printf("MONGODB_URI 값: %s", uri) // 환경변수 값 로그로 출력
    if uri == "" {
 	   log.Printf("MONGODB_URI 환경 변수가 설정되지 않았습니다.")
 	   return nil, nil
