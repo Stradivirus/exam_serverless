@@ -1,13 +1,12 @@
 package examhandler
 
 import (
-	   "context"
-	   "log"
-	   "net/http"
-	   "os"
+	"context"
+	"log"
+	"net/http"
 
-	   "go.mongodb.org/mongo-driver/mongo"
-	   "go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 var examCollections = map[string]string{
@@ -19,17 +18,13 @@ var examCollections = map[string]string{
 }
 
 func connectToDatabase() (*mongo.Client, error) {
-	   uri := os.Getenv("MONGODB_URI")
-	   if uri == "" {
-			   log.Printf("MONGODB_URI 환경 변수가 설정되지 않았습니다.")
-			   return nil, nil
-	   }
-	   client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(uri))
-	   if err != nil {
-			   log.Printf("DB 연결 실패: %v", err)
-			   return nil, err
-	   }
-	   return client, nil
+	uri := "mongodb+srv://stradivirus:1q2w3e4r6218@cluster0.e7rvfpz.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(uri))
+	if err != nil {
+		log.Printf("DB 연결 실패: %v", err)
+		return nil, err
+	}
+	return client, nil
 }
 
 func setCORSHeaders(w http.ResponseWriter) {
