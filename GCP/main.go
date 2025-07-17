@@ -11,10 +11,9 @@ import (
 
 func main() {
 	log.Println("서버 시작: http://localhost:8080")
-	log.Printf("MONGODB_URI: %s", os.Getenv("MONGODB_URI"))
-
-	// DB 연결 및 컬렉션 목록 출력
 	uri := os.Getenv("MONGODB_URI")
+	log.Printf("MONGODB_URI: %s", uri) // 무조건 출력
+
 	if uri != "" {
 		client, err := examhandler.ConnectForMain(uri)
 		if err != nil {
@@ -28,6 +27,8 @@ func main() {
 			}
 			_ = client.Disconnect(context.Background())
 		}
+	} else {
+		log.Printf("MONGODB_URI가 비어 있습니다")
 	}
 
 	http.Handle("/", http.HandlerFunc(examhandler.ExamHandler))
