@@ -63,5 +63,5 @@ jobs:
 
       - name: Build and push
         run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/your-image-name:latest ./GCP
+          docker build --build-arg MONGODB_URI=${{ secrets.MONGODB_URI }} -t ${{ secrets.DOCKERHUB_USERNAME }}/your-image-name:latest ./GCP
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/your-image-name:latest

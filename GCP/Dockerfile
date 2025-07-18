@@ -20,7 +20,9 @@ WORKDIR /app
 
 COPY --from=builder /app/server .
 
-COPY .env .env
+# 환경변수 주입 (Cloud Run, 도커 run, github actions에서 사용)
+ARG MONGODB_URI
+ENV MONGODB_URI=$MONGODB_URI
 
 EXPOSE 8080
 
