@@ -5,6 +5,7 @@ go 1.21
 require go.mongodb.org/mongo-driver v1.13.1
 
 require (
+	github.com/aws/aws-lambda-go/lambda
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/joho/godotenv v1.5.1
 	github.com/klauspost/compress v1.13.6 // indirect
