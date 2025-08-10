@@ -59,16 +59,16 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1   # 반드시 us-east-1로 설정
+          aws-region: us-east-1
 
-      - name: Login to Amazon ECR Public
-        uses: aws-actions/amazon-ecr-login@v2
-        with:
-          registry-type: public
+      - name: Login to Amazon ECR
+        run: |
+          aws ecr get-login-password --region us-east-1 | \
+          docker login --username AWS --password-stdin 975050309902.dkr.ecr.us-east-1.amazonaws.com
 
       - name: Build, tag, and push image to ECR
         env:
-          ECR_REGISTRY: public.ecr.aws/n2m3j7h5
+          ECR_REGISTRY: 975050309902.dkr.ecr.us-east-1.amazonaws.com
           ECR_REPOSITORY: stradivirus/exam
           IMAGE_TAG: latest
         run: |
