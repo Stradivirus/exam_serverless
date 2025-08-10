@@ -47,8 +47,6 @@ jobs:
 
   docker-build-and-push:
     runs-on: ubuntu-latest
-    # 커밋 메시지 조건 삭제, paths-filter 사용
-    if: ${{ github.event_name == 'push' && contains(join(github.event.commits.*.modified, ','), 'GCP/') || contains(join(github.event.commits.*.added, ','), 'GCP/') || contains(join(github.event.commits.*.removed, ','), 'GCP/') }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
