@@ -47,7 +47,7 @@ jobs:
 
   docker-build-and-push:
     runs-on: ubuntu-latest
-    if: "contains(github.event.head_commit.message, '[up2]')"
+    if: "contains(github.event.head_commit.message, '[up2]')"  # 커밋 메시지 조건은 필요에 따라
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -55,13 +55,21 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Login to DockerHub
-        uses: docker/login-action@v3
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2  # 리전에 맞게 변경
 
-      - name: Build and push
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, tag, and push image to ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: exam-serverless  # ECR 리포지토리명
+          IMAGE_TAG: latest
         run: |
-          docker build --build-arg MONGODB_URI=${{ secrets.MONGODB_URI }} -t ${{ secrets.DOCKERHUB_USERNAME }}/your-image-name:latest ./GCP
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/your-image-name:latest
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./GCP
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
