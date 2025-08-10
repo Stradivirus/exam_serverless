@@ -66,8 +66,8 @@ jobs:
 
       - name: Build, tag, and push image to ECR
         env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: exam-serverless  # ECR 리포지토리명
+          ECR_REGISTRY: public.ecr.aws/n2m3j7h5
+          ECR_REPOSITORY: stradivirus/exam
           IMAGE_TAG: latest
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./GCP
