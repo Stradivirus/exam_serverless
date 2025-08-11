@@ -11,7 +11,7 @@ type LambdaResponse struct {
     Body       string            `json:"body"`
 }
 
-func ExamHandlerLambda(ctx context.Context) (string, error) {
+func ExamHandlerLambda(ctx context.Context) (LambdaResponse, error) {
     // 실제 비즈니스 로직 처리 (예시: 문제 리스트 반환)
     result := map[string]interface{}{
         "result": "ok",
@@ -33,6 +33,5 @@ func ExamHandlerLambda(ctx context.Context) (string, error) {
         Body:       string(bodyBytes),
     }
 
-    respBytes, _ := json.Marshal(resp)
-    return string(respBytes), nil
+    return resp, nil
 }
