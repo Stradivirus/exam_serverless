@@ -36,10 +36,20 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-2
 
-      - name: Deploy to S3
+      - name: Deploy to S3 (optimized)
         run: |
-          aws s3 sync front/dist/ s3://${{ secrets.S3_BUCKET_NAME }} --delete
+          # size-only 옵션으로 크기가 다른 파일만 업로드
+          # exclude와 include를 사용하여 PDF는 별도 처리
+          aws s3 sync front/dist/ s3://${{ secrets.S3_BUCKET_NAME }} \
+            --delete \
+            --exclude "pdf/*" \
+            --size-only
+            
+          # PDF 파일은 크기와 타임스탬프 모두 확인
+          aws s3 sync front/dist/pdf/ s3://${{ secrets.S3_BUCKET_NAME }}/pdf/ \
+            --delete
           
-      - name: Invalidate CloudFront
+      - name: Invalidate CloudFront (selective)
         run: |
-          aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
+          # index.html과 주요 파일만 무효화
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/index.html" "/assets/*"
