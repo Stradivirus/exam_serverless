@@ -46,7 +46,7 @@ function HomePage() {
 
      <div className="section-container">
        <h2 className="section-title">
-         LINUX 1급 기출문제 (4회)
+         LINUX 1급 (4회)
        </h2>
        <div className="button-grid">
          {[

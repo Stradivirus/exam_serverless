@@ -1,4 +1,4 @@
-name: Deploy to Oracle Cloud
+name: Deploy to S3 + CloudFront
 
 on:
   push:
@@ -29,16 +29,17 @@ jobs:
         working-directory: ./front
         run: npm run build
 
-      - name: Prepare SSH Key
-        run: |
-          mkdir -p ~/.ssh
-          echo "$SSH_KEY" > ~/.ssh/oracle_rsa
-          chmod 600 ~/.ssh/oracle_rsa
-          echo "StrictHostKeyChecking no" >> ~/.ssh/config
-        env:
-          SSH_KEY: ${{ secrets.ORACLE_SSH_KEY }}
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
 
-      - name: Deploy via SCP
+      - name: Deploy to S3
         run: |
-          scp -i ~/.ssh/oracle_rsa -o UserKnownHostsFile=/dev/null -r front/dist/* ${{ secrets.SSH_USER }}@${{ secrets.ORACLE_SERVER_IP }}:/var/www/html2
-          ssh -i ~/.ssh/oracle_rsa ${{ secrets.SSH_USER }}@${{ secrets.ORACLE_SERVER_IP }} "sudo systemctl reload nginx"
+          aws s3 sync front/dist/ s3://${{ secrets.S3_BUCKET_NAME }} --delete
+          
+      - name: Invalidate CloudFront
+        run: |
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
