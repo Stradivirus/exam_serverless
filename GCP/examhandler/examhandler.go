@@ -10,9 +10,13 @@ import (
 )
 
 type LambdaEvent struct {
-    RawPath    string `json:"rawPath"`
-    HTTPMethod string `json:"requestContext.http.method"`
-    Body       string `json:"body"`
+    RawPath        string `json:"rawPath"`
+    RequestContext struct {
+        HTTP struct {
+            Method string `json:"method"`
+        } `json:"http"`
+    } `json:"requestContext"`
+    Body string `json:"body"`
 }
 
 type LambdaResponse struct {
@@ -23,7 +27,7 @@ type LambdaResponse struct {
 
 func ExamHandlerLambda(ctx context.Context, event LambdaEvent) (LambdaResponse, error) {
     // 디버깅을 위한 로그
-    fmt.Printf("Lambda Event - RawPath: %s, HTTPMethod: %s\n", event.RawPath, event.HTTPMethod)
+    fmt.Printf("Lambda Event - RawPath: %s, HTTPMethod: %s\n", event.RawPath, event.RequestContext.HTTP.Method)
     fmt.Printf("Event Body: %s\n", event.Body)
     
     headers := map[string]string{
@@ -34,7 +38,7 @@ func ExamHandlerLambda(ctx context.Context, event LambdaEvent) (LambdaResponse, 
     }
 
     // OPTIONS 요청 처리
-    if event.HTTPMethod == "OPTIONS" {
+    if event.RequestContext.HTTP.Method == "OPTIONS" {
         return LambdaResponse{
             StatusCode: 200,
             Headers:    headers,
