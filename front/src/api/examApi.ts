@@ -1,5 +1,5 @@
 // const API_URL = 'http://localhost:8080';
-const API_URL = 'https://nofbas5cgrnd7bbgtpz3mcqxcy0imnhn.lambda-url.us-east-1.on.aws/';
+const API_URL = 'https://vp5r4s7ljxybbtii4doqi3nrrm0ajmny.lambda-url.ap-northeast-2.on.aws/';
 
 export async function fetchQuestions(examType: string, extraPath?: string) {
   let url = `${API_URL}/${examType}/questions`;
