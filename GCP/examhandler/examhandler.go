@@ -60,7 +60,7 @@ func ExamHandlerLambda(ctx context.Context, event LambdaEvent) (LambdaResponse, 
     }
 }
 
-func handleQuestionsLambda(examType string, pathParts []string, collection interface{}, headers map[string]string) (LambdaResponse, error) {
+func handleQuestionsLambda(examType string, pathParts []string, collection *mongo.Collection, headers map[string]string) (LambdaResponse, error) {
     var bodyBytes []byte
     var err error
 
@@ -96,7 +96,7 @@ func handleQuestionsLambda(examType string, pathParts []string, collection inter
     }, nil
 }
 
-func handleCheckLambda(body, examType string, pathParts []string, collection interface{}, headers map[string]string) (LambdaResponse, error) {
+func handleCheckLambda(body, examType string, pathParts []string, collection *mongo.Collection, headers map[string]string) (LambdaResponse, error) {
     var userAnswers map[string]string
     if err := json.Unmarshal([]byte(body), &userAnswers); err != nil {
         return errorResp("Error parsing answers"), nil
@@ -147,7 +147,7 @@ func handleCheckLambda(body, examType string, pathParts []string, collection int
 }
 
 // NCA 질문 처리 (Lambda용)
-func handleNCAQuestionsLambda(collection interface{}) ([]byte, error) {
+func handleNCAQuestionsLambda(collection *mongo.Collection) ([]byte, error) {
     questions, err := getBaseQuestions(collection)
     if err != nil {
         return nil, err
@@ -156,7 +156,7 @@ func handleNCAQuestionsLambda(collection interface{}) ([]byte, error) {
 }
 
 // AWS SAA 질문 처리 (Lambda용)
-func handleAWSSAAQuestionsLambda(collection interface{}) ([]byte, error) {
+func handleAWSSAAQuestionsLambda(collection *mongo.Collection) ([]byte, error) {
     questions, err := getBaseQuestions(collection)
     if err != nil {
         return nil, err
@@ -165,7 +165,7 @@ func handleAWSSAAQuestionsLambda(collection interface{}) ([]byte, error) {
 }
 
 // AWS SysOps 질문 처리 (Lambda용)
-func handleAWSSysOpsQuestionsLambda(collection interface{}) ([]byte, error) {
+func handleAWSSysOpsQuestionsLambda(collection *mongo.Collection) ([]byte, error) {
     questions, err := getBaseQuestions(collection)
     if err != nil {
         return nil, err
@@ -174,7 +174,7 @@ func handleAWSSysOpsQuestionsLambda(collection interface{}) ([]byte, error) {
 }
 
 // Linux 질문 처리 (Lambda용)
-func handleLinuxQuestionsLambda(collection interface{}) ([]byte, error) {
+func handleLinuxQuestionsLambda(collection *mongo.Collection) ([]byte, error) {
     questions, err := getPdfQuestions(collection)
     if err != nil {
         return nil, err
@@ -183,7 +183,7 @@ func handleLinuxQuestionsLambda(collection interface{}) ([]byte, error) {
 }
 
 // Network 질문 처리 (Lambda용)
-func handleNetworkQuestionsLambda(collection interface{}) ([]byte, error) {
+func handleNetworkQuestionsLambda(collection *mongo.Collection) ([]byte, error) {
     questions, err := getPdfQuestions(collection)
     if err != nil {
         return nil, err
