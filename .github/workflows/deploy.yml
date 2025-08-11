@@ -6,7 +6,6 @@ on:
       - master
     paths:
       - 'front/**'
-      - 'GCP/**'   # GCP 폴더 변화도 감지
 
 jobs:
   deploy:
@@ -30,7 +29,6 @@ jobs:
         working-directory: ./front
         run: npm run build
 
-      # AWS 관련 단계 삭제 후 Oracle Cloud 배포 단계 추가
       - name: Prepare SSH Key
         run: |
           mkdir -p ~/.ssh
@@ -44,33 +42,3 @@ jobs:
         run: |
           scp -i ~/.ssh/oracle_rsa -o UserKnownHostsFile=/dev/null -r front/dist/* ${{ secrets.SSH_USER }}@${{ secrets.ORACLE_SERVER_IP }}:/var/www/html2
           ssh -i ~/.ssh/oracle_rsa ${{ secrets.SSH_USER }}@${{ secrets.ORACLE_SERVER_IP }} "sudo systemctl reload nginx"
-
-  docker-build-and-push:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-northeast-2
-
-      - name: Login to Amazon ECR
-        run: |
-          aws ecr get-login-password --region ap-northeast-2 | \
-          docker login --username AWS --password-stdin 975050309902.dkr.ecr.ap-northeast-2.amazonaws.com
-
-      - name: Build, tag, and push image to ECR
-        env:
-          ECR_REGISTRY: 975050309902.dkr.ecr.ap-northeast-2.amazonaws.com
-          ECR_REPOSITORY: stradivirus/exam
-          IMAGE_TAG: latest
-        run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./GCP
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
