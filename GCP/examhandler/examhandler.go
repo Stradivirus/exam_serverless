@@ -5,6 +5,7 @@ import (
     "encoding/json"
     "strings"
     "fmt"
+    "go.mongodb.org/mongo-driver/mongo"
 )
 
 type LambdaResponse struct {
@@ -152,25 +153,28 @@ func handleCheckLambda(body, examType string, pathParts []string, collection int
     var results []QuizResult
     var score int
 
+    // 타입 캐스팅 추가
+    mongoCollection := collection.(*mongo.Collection)
+
     switch examType {
     case "nca":
-        results, score = handleNCAAnswers(userAnswers, collection)
+        results, score = handleNCAAnswers(userAnswers, mongoCollection)
     case "awssaa":
-        results, score = handleAWSSAAAnswers(userAnswers, collection)
+        results, score = handleAWSSAAAnswers(userAnswers, mongoCollection)
     case "awssysops":
-        results, score = handleAWSSysOpsAnswers(userAnswers, collection)
+        results, score = handleAWSSysOpsAnswers(userAnswers, mongoCollection)
     case "linux":
         if len(pathParts) < 3 {
             return errorResp("PDF number required"), nil
         }
         pdfNumber := pathParts[2]
-        results, score = handleLinuxAnswers(userAnswers, collection, pdfNumber)
+        results, score = handleLinuxAnswers(userAnswers, mongoCollection, pdfNumber)
     case "network":
         if len(pathParts) < 3 {
             return errorResp("Exam date required"), nil
         }
         examDate := pathParts[2]
-        results, score = handleNetworkAnswers(userAnswers, collection, examDate)
+        results, score = handleNetworkAnswers(userAnswers, mongoCollection, examDate)
     default:
         return errorResp("Invalid exam type"), nil
     }
