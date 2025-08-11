@@ -3,6 +3,7 @@ package examhandler
 import (
     "context"
     "encoding/json"
+    "go.mongodb.org/mongo-driver/bson"
 )
 
 type LambdaResponse struct {
