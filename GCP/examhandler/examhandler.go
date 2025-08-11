@@ -4,6 +4,7 @@ import (
     "context"
     "encoding/json"
     "strings"
+    "fmt"
     
     "go.mongodb.org/mongo-driver/mongo"
 )
@@ -21,6 +22,10 @@ type LambdaResponse struct {
 }
 
 func ExamHandlerLambda(ctx context.Context, event LambdaEvent) (LambdaResponse, error) {
+    // 디버깅을 위한 로그
+    fmt.Printf("Lambda Event - RawPath: %s, HTTPMethod: %s\n", event.RawPath, event.HTTPMethod)
+    fmt.Printf("Event Body: %s\n", event.Body)
+    
     headers := map[string]string{
         "Access-Control-Allow-Origin":  "*",
         "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
@@ -39,18 +44,24 @@ func ExamHandlerLambda(ctx context.Context, event LambdaEvent) (LambdaResponse, 
 
     // 경로 파싱
     pathParts := strings.Split(strings.Trim(event.RawPath, "/"), "/")
+    fmt.Printf("Path parts: %v\n", pathParts)
+    
     if len(pathParts) < 2 {
         return errorResp("Invalid path"), nil
     }
 
     examType, action := pathParts[0], pathParts[1]
+    fmt.Printf("ExamType: %s, Action: %s\n", examType, action)
 
     // DB 연결
     collection, client, err := getCollection(examType)
     if err != nil {
+        fmt.Printf("DB connection error: %v\n", err)
         return errorResp("Database connection error"), nil
     }
     defer client.Disconnect(context.Background())
+    
+    fmt.Printf("Successfully connected to DB, collection: %s\n", examType)
 
     switch action {
     case "questions":
@@ -154,6 +165,7 @@ func handleNCAQuestionsLambda(collection *mongo.Collection) ([]byte, error) {
     if err != nil {
         return nil, err
     }
+    // 기존 HTTP 핸들러와 동일한 형식으로 반환 (questions 배열을 직접 반환)
     return json.Marshal(questions)
 }
 
