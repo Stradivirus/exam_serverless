@@ -27,7 +27,7 @@ func main() {
     } else {
         // 로컬/서버 모드
         http.Handle("/", http.HandlerFunc(examhandler.ExamHandler))
-        log.Println("서버 시작")
+        log.Println("server start")
         log.Fatal(http.ListenAndServe(":8080", nil))
     }
 }
