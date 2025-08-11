@@ -7,7 +7,8 @@ import (
 
 // BaseQuestion 공통 문제 구조체
 type BaseQuestion struct {
-    ID            primitive.ObjectID `bson:"_id" json:"id"`
+    ID            primitive.ObjectID `bson:"_id" json:"-"`
+    IDString      string            `json:"id"`
     Question      string            `bson:"question" json:"question"`
     ChoiceA       string            `bson:"choice_a" json:"choice_a"`
     ChoiceB       string            `bson:"choice_b" json:"choice_b"`
