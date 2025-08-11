@@ -3,16 +3,13 @@ package examhandler
 import (
     "context"
     "encoding/json"
-    "math/rand"
-    "time"
-    "go.mongodb.org/mongo-driver/bson"
     "strings"
 )
 
 type LambdaEvent struct {
-    RawPath  string            `json:"rawPath"`
-    HTTPMethod string          `json:"requestContext.http.method"`
-    Body     string            `json:"body"`
+    RawPath    string `json:"rawPath"`
+    HTTPMethod string `json:"requestContext.http.method"`
+    Body       string `json:"body"`
 }
 
 type LambdaResponse struct {
@@ -21,79 +18,177 @@ type LambdaResponse struct {
     Body       string            `json:"body"`
 }
 
-// examType을 인자로 받아서 다양한 시험 지원
 func ExamHandlerLambda(ctx context.Context, event LambdaEvent) (LambdaResponse, error) {
-    // 경로 파싱: /examType/action
+    headers := map[string]string{
+        "Access-Control-Allow-Origin":  "*",
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type",
+        "Content-Type":                 "application/json",
+    }
+
+    // OPTIONS 요청 처리
+    if event.HTTPMethod == "OPTIONS" {
+        return LambdaResponse{
+            StatusCode: 200,
+            Headers:    headers,
+            Body:       "",
+        }, nil
+    }
+
+    // 경로 파싱
     pathParts := strings.Split(strings.Trim(event.RawPath, "/"), "/")
     if len(pathParts) < 2 {
         return errorResp("Invalid path"), nil
     }
+
     examType, action := pathParts[0], pathParts[1]
 
+    // DB 연결
     collection, client, err := getCollection(examType)
     if err != nil {
-        return errorResp("DB 연결 실패"), nil
+        return errorResp("Database connection error"), nil
     }
     defer client.Disconnect(context.Background())
 
-    headers := map[string]string{
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type",
-        "Content-Type": "application/json",
-    }
-
     switch action {
     case "questions":
-        // 문제 조회 (셔플/20문제 제한 포함)
-        var questions []BaseQuestion
-        cursor, err := collection.Find(context.Background(), bson.M{})
-        if err != nil {
-            return errorResp("문제 조회 실패"), nil
-        }
-        defer cursor.Close(context.Background())
-        if err = cursor.All(context.Background(), &questions); err != nil {
-            return errorResp("문제 파싱 실패"), nil
-        }
-        rand.Seed(time.Now().UnixNano())
-        if len(questions) > 20 {
-            rand.Shuffle(len(questions), func(i, j int) {
-                questions[i], questions[j] = questions[j], questions[i]
-            })
-            questions = questions[:20]
-        }
-        body := map[string]interface{}{
-            "questions": questions,
-        }
-        bodyBytes, _ := json.Marshal(body)
-        return LambdaResponse{
-            StatusCode: 200,
-            Headers:    headers,
-            Body:       string(bodyBytes),
-        }, nil
-
+        return handleQuestionsLambda(examType, pathParts, collection, headers)
     case "check":
-        // 채점 기능
-        var userAnswers map[string]string
-        if err := json.Unmarshal([]byte(event.Body), &userAnswers); err != nil {
-            return errorResp("답안 파싱 실패"), nil
-        }
-        results, score := HandleBaseAnswers(userAnswers, collection)
-        response := QuizResponse{
-            Results: results,
-            Score:   score,
-            Total:   len(userAnswers),
-        }
-        bodyBytes, _ := json.Marshal(response)
-        return LambdaResponse{
-            StatusCode: 200,
-            Headers:    headers,
-            Body:       string(bodyBytes),
-        }, nil
-
+        return handleCheckLambda(event.Body, examType, pathParts, collection, headers)
     default:
         return errorResp("Invalid action"), nil
     }
+}
+
+func handleQuestionsLambda(examType string, pathParts []string, collection interface{}, headers map[string]string) (LambdaResponse, error) {
+    var bodyBytes []byte
+    var err error
+
+    switch examType {
+    case "nca":
+        bodyBytes, err = handleNCAQuestionsLambda(collection)
+    case "awssaa":
+        bodyBytes, err = handleAWSSAAQuestionsLambda(collection)
+    case "awssysops":
+        bodyBytes, err = handleAWSSysOpsQuestionsLambda(collection)
+    case "linux":
+        if len(pathParts) < 3 {
+            return errorResp("PDF number not specified"), nil
+        }
+        bodyBytes, err = handleLinuxQuestionsLambda(collection)
+    case "network":
+        if len(pathParts) < 3 {
+            return errorResp("Exam date not specified"), nil
+        }
+        bodyBytes, err = handleNetworkQuestionsLambda(collection)
+    default:
+        return errorResp("Invalid exam type"), nil
+    }
+
+    if err != nil {
+        return errorResp("Error processing questions"), nil
+    }
+
+    return LambdaResponse{
+        StatusCode: 200,
+        Headers:    headers,
+        Body:       string(bodyBytes),
+    }, nil
+}
+
+func handleCheckLambda(body, examType string, pathParts []string, collection interface{}, headers map[string]string) (LambdaResponse, error) {
+    var userAnswers map[string]string
+    if err := json.Unmarshal([]byte(body), &userAnswers); err != nil {
+        return errorResp("Error parsing answers"), nil
+    }
+
+    var results []QuizResult
+    var score int
+
+    switch examType {
+    case "nca":
+        results, score = handleNCAAnswers(userAnswers, collection)
+    case "awssaa":
+        results, score = handleAWSSAAAnswers(userAnswers, collection)
+    case "awssysops":
+        results, score = handleAWSSysOpsAnswers(userAnswers, collection)
+    case "linux":
+        if len(pathParts) < 3 {
+            return errorResp("PDF number required"), nil
+        }
+        pdfNumber := pathParts[2]
+        results, score = handleLinuxAnswers(userAnswers, collection, pdfNumber)
+    case "network":
+        if len(pathParts) < 3 {
+            return errorResp("Exam date required"), nil
+        }
+        examDate := pathParts[2]
+        results, score = handleNetworkAnswers(userAnswers, collection, examDate)
+    default:
+        return errorResp("Invalid exam type"), nil
+    }
+
+    response := QuizResponse{
+        Results: results,
+        Score:   score,
+        Total:   len(userAnswers),
+    }
+
+    bodyBytes, err := json.Marshal(response)
+    if err != nil {
+        return errorResp("Error encoding response"), nil
+    }
+
+    return LambdaResponse{
+        StatusCode: 200,
+        Headers:    headers,
+        Body:       string(bodyBytes),
+    }, nil
+}
+
+// NCA 질문 처리 (Lambda용)
+func handleNCAQuestionsLambda(collection interface{}) ([]byte, error) {
+    questions, err := getBaseQuestions(collection)
+    if err != nil {
+        return nil, err
+    }
+    return json.Marshal(questions)
+}
+
+// AWS SAA 질문 처리 (Lambda용)
+func handleAWSSAAQuestionsLambda(collection interface{}) ([]byte, error) {
+    questions, err := getBaseQuestions(collection)
+    if err != nil {
+        return nil, err
+    }
+    return json.Marshal(questions)
+}
+
+// AWS SysOps 질문 처리 (Lambda용)
+func handleAWSSysOpsQuestionsLambda(collection interface{}) ([]byte, error) {
+    questions, err := getBaseQuestions(collection)
+    if err != nil {
+        return nil, err
+    }
+    return json.Marshal(questions)
+}
+
+// Linux 질문 처리 (Lambda용)
+func handleLinuxQuestionsLambda(collection interface{}) ([]byte, error) {
+    questions, err := getPdfQuestions(collection)
+    if err != nil {
+        return nil, err
+    }
+    return json.Marshal(questions)
+}
+
+// Network 질문 처리 (Lambda용)
+func handleNetworkQuestionsLambda(collection interface{}) ([]byte, error) {
+    questions, err := getPdfQuestions(collection)
+    if err != nil {
+        return nil, err
+    }
+    return json.Marshal(questions)
 }
 
 func errorResp(msg string) LambdaResponse {
@@ -101,7 +196,7 @@ func errorResp(msg string) LambdaResponse {
         StatusCode: 500,
         Headers: map[string]string{
             "Access-Control-Allow-Origin": "*",
-            "Content-Type": "application/json",
+            "Content-Type":                "application/json",
         },
         Body: `{"error":"` + msg + `"}`,
     }
