@@ -6,6 +6,10 @@ on:
       - master
     paths:
       - 'front/**'
+      - '.github/workflows/deploy.yml'
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   deploy:
@@ -19,7 +23,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           
       - name: Install dependencies
         working-directory: ./front
@@ -38,18 +42,22 @@ jobs:
 
       - name: Deploy to S3 (optimized)
         run: |
-          # size-only 옵션으로 크기가 다른 파일만 업로드
-          # exclude와 include를 사용하여 PDF는 별도 처리
+          # HTML/JS/CSS 등 빌드 산출물은 항상 최신본으로 동기화 (size-only 제거)
           aws s3 sync front/dist/ s3://${{ secrets.S3_BUCKET_NAME }} \
             --delete \
-            --exclude "pdf/*" \
-            --size-only
+            --exclude "pdf/*"
+
+          # index.html은 항상 최신 해시 에셋을 가리키도록 강제 업로드 및 캐시 방지 헤더 설정
+          aws s3 cp front/dist/index.html s3://${{ secrets.S3_BUCKET_NAME }}/index.html \
+            --cache-control "no-cache, no-store, must-revalidate" \
+            --content-type "text/html; charset=utf-8"
             
-          # PDF 파일은 크기와 타임스탬프 모두 확인
+          # 용량이 큰 PDF 파일만 size-only로 변경분만 동기화
           aws s3 sync front/dist/pdf/ s3://${{ secrets.S3_BUCKET_NAME }}/pdf/ \
-            --delete
+            --delete \
+            --size-only
           
-      - name: Invalidate CloudFront (selective)
+      - name: Invalidate CloudFront
         run: |
-          # index.html과 주요 파일만 무효화
-          aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/index.html" "/assets/*"
+          # 루트(/) 경로를 포함한 전체 캐시 무효화 (와일드카드 1건으로 처리)
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
