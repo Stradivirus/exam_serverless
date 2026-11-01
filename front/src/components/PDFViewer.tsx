@@ -178,134 +178,133 @@ function PDFViewer() {
   }, [filename, isNetworkExam]);
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-[1600px] px-4 py-4 sm:px-6 lg:px-8">
       <div className="flex h-[calc(100vh-120px)] flex-col gap-4 lg:flex-row overflow-hidden">
         {/* Left: PDF Viewer Panel */}
         <div className="h-1/2 lg:h-full lg:flex-1 overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 shadow-xl">
           <iframe
-            src={`/pdf/${filename}#toolbar=0&search=0&find=0`}
+            src={`/pdf/${filename}#zoom=125&toolbar=0&search=0&find=0`}
             className="h-full w-full border-0"
             title="PDF Exam Viewer"
           />
         </div>
 
         {/* Right: OMR Answer Sheet & Unanswered Navigator */}
-        <div className="flex h-1/2 lg:h-full lg:w-[430px] xl:w-[460px] shrink-0 flex-col overflow-hidden rounded-2xl border border-slate-800 bg-slate-950 shadow-xl">
-        {/* Top Controls Header */}
-        <div className="border-b border-slate-800 bg-slate-900/90 p-4 space-y-3">
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2 min-w-0">
-              <FileText className="h-4 w-4 shrink-0 text-indigo-400" />
-              <h2 className="truncate text-sm font-extrabold text-white">{examTitle}</h2>
+        <div className="flex h-1/2 lg:h-full lg:w-[310px] xl:w-[330px] shrink-0 flex-col overflow-hidden rounded-2xl border border-slate-800 bg-slate-950 shadow-xl">
+          {/* Top Controls Header */}
+          <div className="border-b border-slate-800 bg-slate-900/90 p-3.5 space-y-2.5">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-1.5 min-w-0">
+                <FileText className="h-4 w-4 shrink-0 text-indigo-400" />
+                <h2 className="truncate text-xs font-extrabold text-white">{examTitle}</h2>
+              </div>
+
+              <div className="flex items-center gap-1.5 shrink-0">
+                <span className="inline-flex items-center gap-1 rounded-xl border border-slate-700 bg-slate-950 px-2.5 py-1 font-mono text-xs font-bold text-amber-300">
+                  <Clock className="h-3 w-3 text-amber-400" />
+                  {Math.floor(timer / 60)}:{(timer % 60).toString().padStart(2, '0')}
+                </span>
+                <Link
+                  to="/"
+                  className="inline-flex items-center gap-1 rounded-xl border border-slate-700 bg-slate-800 px-2 py-1 text-xs font-semibold text-slate-300 hover:bg-slate-700"
+                >
+                  <Home className="h-3 w-3" />
+                  <span>홈</span>
+                </Link>
+              </div>
             </div>
 
-            <div className="flex items-center gap-2 shrink-0">
-              <span className="inline-flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-950 px-3 py-1 font-mono text-xs font-bold text-amber-300">
-                <Clock className="h-3.5 w-3.5 text-amber-400" />
-                {Math.floor(timer / 60)}:{(timer % 60).toString().padStart(2, '0')}
-              </span>
-              <Link
-                to="/"
-                className="inline-flex items-center gap-1 rounded-xl border border-slate-700 bg-slate-800 px-2.5 py-1 text-xs font-semibold text-slate-300 hover:bg-slate-700"
-              >
-                <Home className="h-3.5 w-3.5" />
-                <span>홈</span>
-              </Link>
-            </div>
-          </div>
-
-          {/* Progress Bar */}
-          <div>
-            <div className="flex items-center justify-between text-xs">
-              <span className="flex items-center gap-1 text-slate-400">
-                <Keyboard className="h-3.5 w-3.5 text-indigo-400" />
-                키보드 <strong className="text-slate-200">1~4</strong> 입력 시 자동 다음 문항 이동
-              </span>
-              <span className="font-bold text-indigo-300">
-                {answeredCount} / {questionCount} ({progressPct}%)
-              </span>
-            </div>
-            <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-slate-800">
-              <div
-                className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-cyan-400 transition-all duration-300"
-                style={{ width: `${progressPct}%` }}
-              />
-            </div>
-          </div>
-
-          {/* Unanswered Quick Chips */}
-          {unansweredQuestions.length > 0 && (
-            <div className="rounded-xl border border-slate-800 bg-slate-950/90 p-2.5">
-              <div className="flex items-center justify-between text-[11px] text-slate-400 mb-1.5">
-                <span className="flex items-center gap-1 font-semibold text-amber-300">
-                  <AlertCircle className="h-3 w-3" />
-                  미답변 문항 ({unansweredQuestions.length}개) — 클릭 시 이동
+            {/* Progress Bar */}
+            <div>
+              <div className="flex items-center justify-between text-[11px]">
+                <span className="flex items-center gap-1 text-slate-400">
+                  <Keyboard className="h-3 w-3 text-indigo-400" />
+                  키보드 <strong className="text-slate-200">1~4</strong> 자동 이동
+                </span>
+                <span className="font-bold text-indigo-300">
+                  {answeredCount}/{questionCount} ({progressPct}%)
                 </span>
               </div>
-              <div className="flex gap-1.5 overflow-x-auto pb-1">
-                {unansweredQuestions.map((q) => (
-                  <button
-                    key={q}
-                    type="button"
-                    onClick={() => {
-                      scrollToQuestion(q);
-                      answerListRef.current?.focus();
-                    }}
-                    className={`shrink-0 rounded-lg border px-2 py-0.5 font-mono text-[11px] font-bold transition ${
-                      currentQuestion === q
-                        ? 'border-indigo-400 bg-indigo-500 text-white'
-                        : 'border-slate-800 bg-slate-900 text-slate-400 hover:border-slate-700 hover:text-white'
-                    }`}
-                  >
-                    {q}
-                  </button>
-                ))}
+              <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-slate-800">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-cyan-400 transition-all duration-300"
+                  style={{ width: `${progressPct}%` }}
+                />
               </div>
             </div>
-          )}
 
-          {/* Submit Button */}
-          <button
-            type="button"
-            onClick={handleSubmit}
-            disabled={answeredCount === 0 || submitting}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-cyan-500 py-2.5 text-xs font-extrabold text-white shadow-md shadow-indigo-500/20 transition hover:brightness-110 disabled:opacity-40"
+            {/* Unanswered Quick Chips */}
+            {unansweredQuestions.length > 0 && (
+              <div className="rounded-xl border border-slate-800 bg-slate-950/90 p-2">
+                <div className="flex items-center justify-between text-[11px] text-slate-400 mb-1">
+                  <span className="flex items-center gap-1 font-semibold text-amber-300">
+                    <AlertCircle className="h-3 w-3" />
+                    미답변 ({unansweredQuestions.length}개)
+                  </span>
+                </div>
+                <div className="flex gap-1 overflow-x-auto pb-1">
+                  {unansweredQuestions.map((q) => (
+                    <button
+                      key={q}
+                      type="button"
+                      onClick={() => {
+                        scrollToQuestion(q);
+                        answerListRef.current?.focus();
+                      }}
+                      className={`shrink-0 rounded-lg border px-2 py-0.5 font-mono text-[11px] font-bold transition ${
+                        currentQuestion === q
+                          ? 'border-indigo-400 bg-indigo-500 text-white'
+                          : 'border-slate-800 bg-slate-900 text-slate-400 hover:border-slate-700 hover:text-white'
+                      }`}
+                    >
+                      {q}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Submit Button */}
+            <button
+              type="button"
+              onClick={handleSubmit}
+              disabled={answeredCount === 0 || submitting}
+              className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-indigo-500 to-cyan-500 py-2 text-xs font-extrabold text-white shadow-md shadow-indigo-500/20 transition hover:brightness-110 disabled:opacity-40"
+            >
+              <Send className="h-3.5 w-3.5" />
+              <span>
+                {submitting
+                  ? '채점 중...'
+                  : `답안 제출 및 채점 (${answeredCount}/${questionCount})`}
+              </span>
+            </button>
+          </div>
+
+          {/* Scrollable OMR Answer List */}
+          <div
+            ref={answerListRef}
+            tabIndex={-1}
+            className="flex-1 overflow-y-auto p-2.5 space-y-1.5 focus:outline-none"
           >
-            <Send className="h-3.5 w-3.5" />
-            <span>
-              {submitting
-                ? '채점 중...'
-                : `OMR 답안 제출 및 채점하기 (${answeredCount}/${questionCount})`}
-            </span>
-          </button>
-        </div>
+            {Array.from({ length: questionCount }, (_, i) => i + 1).map((qNum) => {
+              const isCurrent = currentQuestion === qNum;
+              const selected = answers[qNum];
 
-        {/* Scrollable OMR Answer List */}
-        <div
-          ref={answerListRef}
-          tabIndex={-1}
-          className="flex-1 overflow-y-auto p-3 space-y-2 focus:outline-none"
-        >
-          {Array.from({ length: questionCount }, (_, i) => i + 1).map((qNum) => {
-            const isCurrent = currentQuestion === qNum;
-            const selected = answers[qNum];
-
-            return (
-              <div
-                key={qNum}
-                id={`question-${qNum}`}
-                onClick={() => setCurrentQuestion(qNum)}
-                className={`flex items-center justify-between rounded-2xl border px-4 py-2.5 transition ${
-                  isCurrent
-                    ? 'border-indigo-500 bg-indigo-500/15 ring-1 ring-indigo-500/40'
-                    : selected
-                    ? 'border-slate-800 bg-slate-900/80'
-                    : 'border-slate-900 bg-slate-900/40 hover:border-slate-800'
-                }`}
-              >
-                <div className="flex items-center gap-2">
+              return (
+                <div
+                  key={qNum}
+                  id={`question-${qNum}`}
+                  onClick={() => setCurrentQuestion(qNum)}
+                  className={`flex items-center justify-between rounded-xl border px-3 py-2 transition ${
+                    isCurrent
+                      ? 'border-indigo-500 bg-indigo-500/15 ring-1 ring-indigo-500/40'
+                      : selected
+                      ? 'border-slate-800 bg-slate-900/80'
+                      : 'border-slate-900 bg-slate-900/40 hover:border-slate-800'
+                  }`}
+                >
                   <span
-                    className={`inline-flex h-7 w-10 items-center justify-center rounded-lg font-mono text-xs font-extrabold ${
+                    className={`inline-flex h-7 w-11 items-center justify-center rounded-lg font-mono text-xs font-extrabold ${
                       isCurrent
                         ? 'bg-indigo-500 text-white'
                         : selected
@@ -315,40 +314,34 @@ function PDFViewer() {
                   >
                     {qNum}번
                   </span>
-                  {isCurrent && (
-                    <span className="text-[11px] font-medium text-indigo-300">
-                      키보드 1~4
-                    </span>
-                  )}
-                </div>
 
-                <div className="flex items-center gap-2">
-                  {[1, 2, 3, 4].map((choice) => {
-                    const isPicked = selected === String(choice);
-                    return (
-                      <button
-                        key={choice}
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleAnswerSelect(qNum, String(choice));
-                        }}
-                        className={`flex h-8 w-8 items-center justify-center rounded-full border font-mono text-xs font-extrabold transition ${
-                          isPicked
-                            ? 'border-indigo-400 bg-indigo-500 text-white shadow shadow-indigo-500/30'
-                            : 'border-slate-700 bg-slate-950 text-slate-400 hover:border-slate-500 hover:text-white'
-                        }`}
-                      >
-                        {choice}
-                      </button>
-                    );
-                  })}
+                  <div className="flex items-center gap-1.5">
+                    {[1, 2, 3, 4].map((choice) => {
+                      const isPicked = selected === String(choice);
+                      return (
+                        <button
+                          key={choice}
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAnswerSelect(qNum, String(choice));
+                          }}
+                          className={`flex h-7 w-7 items-center justify-center rounded-full border font-mono text-xs font-extrabold transition ${
+                            isPicked
+                              ? 'border-indigo-400 bg-indigo-500 text-white shadow shadow-indigo-500/30'
+                              : 'border-slate-700 bg-slate-950 text-slate-400 hover:border-slate-500 hover:text-white'
+                          }`}
+                        >
+                          {choice}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
-      </div>
       </div>
     </div>
   );
