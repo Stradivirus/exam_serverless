@@ -29,8 +29,18 @@ def lambda_handler(event, context):
     
     # 경로 파싱
     raw_path = extract_path(event)
-    path_parts = raw_path.strip('/').split('/')
+    path_parts = [p for p in raw_path.strip('/').split('/') if p]
     
+    if len(path_parts) == 0 or path_parts[0] == 'health':
+        return {
+            'statusCode': 200,
+            'headers': headers,
+            'body': json.dumps({
+                'status': 'ok',
+                'service': 'exam-serverless-cbt-lambda'
+            })
+        }
+
     if len(path_parts) < 2:
         return error_response('Invalid path')
     
