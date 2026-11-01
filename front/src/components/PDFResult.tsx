@@ -78,18 +78,19 @@ function PDFResult({ type, getTitle }: PDFResultProps) {
   const wrongCount = result.results.filter((r) => !r.is_correct).length;
 
   return (
-    <div className="flex h-[calc(100vh-88px)] flex-col lg:flex-row overflow-hidden bg-slate-950">
-      {/* Left: PDF Document Panel */}
-      <div className="h-1/2 lg:h-full lg:flex-1 border-b lg:border-b-0 lg:border-r border-slate-800 bg-slate-900">
-        <iframe
-          src={`/pdf/${filename}`}
-          className="h-full w-full border-0"
-          title="PDF Exam Review"
-        />
-      </div>
+    <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
+      <div className="flex h-[calc(100vh-120px)] flex-col gap-4 lg:flex-row overflow-hidden">
+        {/* Left: PDF Document Panel */}
+        <div className="h-1/2 lg:h-full lg:flex-1 overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 shadow-xl">
+          <iframe
+            src={`/pdf/${filename}`}
+            className="h-full w-full border-0"
+            title="PDF Exam Review"
+          />
+        </div>
 
-      {/* Right: Score & OMR Grading Review Panel */}
-      <div className="flex h-1/2 lg:h-full lg:w-[460px] xl:w-[500px] shrink-0 flex-col bg-slate-950">
+        {/* Right: Score & OMR Grading Review Panel */}
+        <div className="flex h-1/2 lg:h-full lg:w-[440px] xl:w-[480px] shrink-0 flex-col overflow-hidden rounded-2xl border border-slate-800 bg-slate-950 shadow-xl">
         <div className="border-b border-slate-800 bg-slate-900/90 p-5 space-y-4">
           <div className="flex items-start justify-between gap-2">
             <div>
@@ -197,6 +198,7 @@ function PDFResult({ type, getTitle }: PDFResultProps) {
             </div>
           ))}
         </div>
+      </div>
       </div>
     </div>
   );
